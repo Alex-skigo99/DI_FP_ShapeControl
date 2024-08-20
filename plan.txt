@@ -1,0 +1,33 @@
+Project Title:   ShapeControl
+Project Description and Justification:
+    This app helps you control calorie intake. 
+    After authentication you may create your own plan of calories intake with dependents of age, height, weight and active level. 
+    Then you can fill actual data and get a grade and a tips. 
+    Also you may connect app with Strava to get workout calorie information. 
+    My app let you control your weight and be healthy.
+
+                Planning
+Task Description:
+1	Create project structure and repository
+2	Create database in neon.tech
+3	Create Authentification 
+4	Deploy project to render.com with autodeploy
+5	Create backend on node.js with express
+6	Create frontend on React with Typescript. Apply CSS or one of library.
+7	Testing and debugging
+8	Add additional features
+9	Make a presentation
+
+Minimum Viable Product Feature:		
+1	Authentication with access token
+2	Create 7-day program of calories intake
+3	Enter actual daily data 
+4	Store all data in database
+5	load and show previous programs
+5	Enter task details
+6	Get grade
+
+Additional Features	Action:
+1	Authentication with refresh token
+2	diet selection with ChatGPT
+3	Get tips
