@@ -8,7 +8,7 @@ const main_controller_1 = require("../controllers/main_controller");
 const express_1 = __importDefault(require("express"));
 exports.router = express_1.default.Router();
 // router.get('/', (req, res) => {res.render('index')});
-exports.router.get('/api/hello', main_controller_1.hello);
+exports.router.get('/api/hello/:id', main_controller_1.hello);
 // router.post('/api/login', login);
 // router.post('/api/signup', signup);
 // router.get('/api/programs', getPrograms);

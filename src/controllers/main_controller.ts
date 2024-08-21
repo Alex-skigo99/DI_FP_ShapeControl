@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { _hello } from "../models/main_model";
 
 export const hello = (req: Request, res: Response) => {
-    const { id } = req.query;
+    const { id } = req.params;
     console.log(id);
     _hello(Number(id))
         .then(result => {
