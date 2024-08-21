@@ -5,6 +5,7 @@ function App() {
 
   return (
     <>
+      <h2>Hello app</h2>
       <Hello id={6} />
     </>
   )
