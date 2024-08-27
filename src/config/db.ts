@@ -10,8 +10,14 @@ export const db = knex ({
     }
 });
 
+export const TABLES = {
+    users: 'users',
+    data: 'data',
+    programs: 'programs',
+    strava: 'strava'
+};
+
 export async function getPgVersion() {
     const result = await db.raw('select version()');
-    // console.log(result.rows[0].version);
     return result.rows[0].version;
-  };
+};

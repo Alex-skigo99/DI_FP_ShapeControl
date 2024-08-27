@@ -1,14 +1,25 @@
-import './App.css'
-import Hello from './components/Hello'
+import { Routes, Route } from "react-router-dom";
+import "./App.css";
+import Home from "./components/Home";
+import ProgramCreateForm  from "./components/Program_create_form";
+import NavTabs from "./components/NavTabs";
+import SignIn from "./components/SignIn";
+import SignUp from "./components/SignUp";
+// import Navbar from "./components/NavbarOld";
+// import Auth from "./auth/Auth";
 
 function App() {
-
   return (
     <>
-      <h2>Hello app</h2>
-      <Hello id={6} />
+      <NavTabs />
+      <Routes>
+        <Route path='/' element={<Home />} />
+        <Route path='/login' element={<SignIn />} />
+        <Route path='/register' element={<SignUp />} />
+        <Route path='/dash' element={<ProgramCreateForm />} />
+      </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
