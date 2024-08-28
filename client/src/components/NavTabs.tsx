@@ -3,7 +3,9 @@ import Box from '@mui/material/Box';
 // import Tabs from '@mui/material/Tabs';
 import Tab, { TabProps } from '@mui/material/Tab';
 import { Link, LinkProps } from 'react-router-dom';
-import { AppBar, Toolbar } from '@mui/material';
+import { AppBar, Toolbar, Typography } from '@mui/material';
+import { useCurrentUser } from '../features/users/hooks';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 // function samePageLinkNavigation(
 //   event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
@@ -47,6 +49,8 @@ function LinkTab(props: LinkTabProps) {
 }
 
 export default function NavTabs() {
+  const currentUser = useCurrentUser();
+  console.log('NavTabs-current-user:', currentUser); //---------------
   // const [value, setValue] = React.useState(0);
 
   // const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -65,19 +69,25 @@ export default function NavTabs() {
   <Box sx={{flexGrow: 1}}>
     <AppBar position='static' sx={{color: 'white'}}>
       <Toolbar>
-        {/* <Box sx={{ width: '100%' }}> */}
-          {/* <Tabs
-            value={value}
-            onChange={handleChange}
-            aria-label="nav tabs example"
-            role="navigation"
-          > */}
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+        >
+          SHAPE CONTROL
+        </Typography>
             <LinkTab label="Home" to="/" />
             <LinkTab label="New program" to="/dash" />
-            <LinkTab label="Sign In" to="/login" />
-            <LinkTab label="Register" to="/register" />
-          {/* </Tabs> */}
-        {/* </Box> */}
+            {currentUser?
+              <>
+                <LinkTab label="Log Out" to="/logout" />
+                <AccountCircleIcon/>
+                <Typography variant="overline" display="block" gutterBottom>
+                    {currentUser.username}
+                </Typography>
+              </>
+              : <LinkTab label="Sign In" to="/login" />
+        }
       </Toolbar>
     </AppBar>
   </Box>

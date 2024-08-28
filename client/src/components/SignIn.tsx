@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useDispatch, useSelector } from 'react-redux';
+// import axios from "axios";
+// imports material UI
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -14,7 +16,11 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { API } from '../utils/consts';
+// local imports
+// import { API } from '../utils/consts';
+// import { useCurrentUser } from '../features/users/hooks';
+import { signinPost } from '../features/users/userSlice';
+import { RootState, AppDispatch } from '../app/store';
 
 // function Copyright(props: any) {
 //   return (
@@ -33,34 +39,51 @@ const defaultTheme = createTheme();
 
 export default function SignIn() {
   const [message, setMessage] = React.useState("");
-
+  const { loading, error } = useSelector((state: RootState) => state.userReducer);
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const loginData = {
-      username: data.get('username'),
-      password: data.get('password'),
+      username: data.get('username') as string,
+      password: data.get('password') as string,
     };
-    console.log(loginData);
-    try {
-      const response = await axios.post(
-        API.login,
-        loginData,
-        { withCredentials: true }
-      );
+    console.log(loginData);  //--------------
 
-      if (response.status === 200) {
-        setMessage(response.data.message);
-        console.log(response.data); //--------------------
-        navigate('/')
-      }
-    } catch (error: any) {
-      console.log(error);  //-----------------
-      setMessage(error.response.data.message);
-    }
-  }
+    dispatch(signinPost(loginData));
+
+  //   try {
+  //     const response = await axios.post(
+  //       API.login,
+  //       loginData,
+  //       { withCredentials: true }
+  //     );
+
+  //     if (response.status === 200) {
+  //       setMessage(response.data.message);
+  //       console.log(response.data); //--------------------
+  //       const dispatch = useDispatch();
+  //       // store users data after succsess login
+  //       dispatch(setCurrentUser(response.data.user));
+  //     }
+  //   } catch (err: any) {
+    //     console.log(err);  //-----------------
+    //     setMessage(err.response.data.message);
+    //   }
+    navigate('/')
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  };
+
+  if (error) {
+    console.log(error);  //-----------------
+    setMessage(error as string);
+  };
+
 
   return (
     <ThemeProvider theme={defaultTheme}>

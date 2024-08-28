@@ -23,10 +23,11 @@ export const userController = {
     }
   },
   loginUser: async (req: Request, res: Response) => {
-    const { username, password } = req.body;
+    const name = req.body.username;
+    const password = req.body.password;
 
     try {
-      const user = await userModel.getUserByName(username);
+      const user = await userModel.getUserByName(name);
 
       if (!user) {
         return res.status(404).json({ message: "User not found, ...." });
@@ -71,17 +72,21 @@ export const userController = {
       });
       console.log('login_controller - user:', user);
       await userModel.updateRefreshToken(refreshtoken, user.id);
-
+      let {id, username, age, gender, height} = user;
       res.json({
         message: "Login succesfully",
-        user,
-        token: accesstoken,
-        refresh: refreshtoken,
+        user: {id, username, age, gender, height}
       });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "internal server error" });
     }
+  },
+  
+  logOutUser: (req: Request, res: Response) => {
+      res.clearCookie("token");
+      res.clearCookie("refresh");
+      res.send('Token and refreshToken cookies have been deleted');
   },
 
   getAllUsers: async (req: CustomRequest, res: Response) => {
