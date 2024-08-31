@@ -32,7 +32,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 // ---------- local import --------------
 import { AppDispatch, RootState } from '../app/store';
-import { postProg, progSliceStatus, resetStatus } from '../features/progs/progSlice';
+import { postProg, progSliceStatus, resetStatus, setCurrentProg } from '../features/progs/progSlice';
 import { Day, Program } from '../features/progs/progSlice';
 import { useCurrentUser } from '../features/users/hooks';
 import { LevelType, weekDays, activityIndex } from '../utils/consts';
@@ -158,13 +158,13 @@ export default function ProgramCreateForm() {
   ];
 
   if (status == 'succeeded') {
+    dispatch(resetStatus());
     return (
       <MyDialog 
           title = 'Succeeded'
           text = 'Your new 7-day meal program successful created and store to database.'
           btnText='Ok'
           handleClose={() => {
-            dispatch(resetStatus());
             navigate('/progs')
             }}
       />
@@ -265,18 +265,12 @@ export default function ProgramCreateForm() {
                   rows={days} 
                   columns={columns}
                   hideFooter
+                  rowHeight={42}
                   processRowUpdate={(updatedRow, oldRow) =>
                     rowUpdate(updatedRow, oldRow)
                   }
                 />
               </Grid>
-
-              {/* <Grid item xs={12}>
-                <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
-                  label="I want to receive inspiration, marketing promotions and updates via email."
-                />
-              </Grid> */}
             </Grid>
             <Button
               type="submit"
@@ -285,13 +279,17 @@ export default function ProgramCreateForm() {
             >
               Save
             </Button>
-            {/* {message !== ''? 
-              <Grid item xs={12}>
-                <Alert severity="warning" onClose={() => {}}>
-                    {message}
-                </Alert>
-              </Grid>
-              : <></>} */}
+            <Button
+                type="button"
+                variant='outlined'
+                onClick={() => {
+                    dispatch(setCurrentProg(undefined));
+                    navigate('/progs')
+                }}
+                sx={{ mt: 3, mb: 2, ml: 3, justifySelf: 'end' }}
+            >
+                Cancel
+            </Button>
           </Box>
         </Box>
       </Container>

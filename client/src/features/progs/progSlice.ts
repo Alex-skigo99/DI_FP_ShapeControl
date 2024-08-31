@@ -66,7 +66,22 @@ export const postProg = createAsyncThunk(
             );
             return response.data
         } catch (err) {
-            return thunkAPI.rejectWithValue("Fetch programs failed");
+            return thunkAPI.rejectWithValue("Post programs failed");
+        }
+    }
+);  
+export const patchProg = createAsyncThunk(
+    'progs/patchProg',
+    async (progData: Program, thunkAPI) => {
+        try {
+            const response = await axios.patch(
+                API.programs,
+                progData,
+                { withCredentials: true }
+            );
+            return response
+        } catch (err) {
+            return thunkAPI.rejectWithValue("Patch programs failed");
         }
     }
 );  
@@ -109,12 +124,22 @@ const progSlice = createSlice({
         })
         .addCase(postProg.fulfilled, (state, action) => {
             state.status = 'succeeded';
-            console.log('action-payload: ', action.payload); //-------------------
+            console.log('post action-payload: ', action.payload); //-------------------
             state.programs? state.programs.push(action.payload) : state.programs = [action.payload];
         })
         .addCase(postProg.rejected, (state) => {
             state.status = 'failed';
-        });
+        })
+        .addCase(patchProg.pending, (state) => {
+            state.status = 'loading';
+        })
+        .addCase(patchProg.fulfilled, (state, action) => {
+            state.status = 'succeeded';
+            console.log('patch action-payload: ', action.payload); //-------------------
+        })
+        .addCase(patchProg.rejected, (state) => {
+            state.status = 'failed';
+        })
     },
 
 });

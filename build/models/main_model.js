@@ -55,5 +55,29 @@ exports.mainModel = {
             await trx.rollback();
             throw error;
         }
+    },
+    _patchProgram: async (data) => {
+        let days = [...data.days];
+        delete data.days;
+        const trx = await db_1.db.transaction();
+        try {
+            const result = await trx('programs')
+                .where({ id: data.id })
+                .update(data);
+            // .returning('*');
+            let len = days.length;
+            for (let i = 0; i < len; i++) {
+                await trx('data')
+                    .where({ id: days[i].id })
+                    .update(days[i]);
+            }
+            await trx.commit();
+            console.log('_patchProgram - result: ', result); //-----------------
+            return result;
+        }
+        catch (error) {
+            await trx.rollback();
+            throw error;
+        }
     }
 };

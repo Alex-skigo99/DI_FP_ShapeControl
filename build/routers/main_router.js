@@ -10,4 +10,5 @@ exports.mainRouter = express_1.default.Router();
 exports.mainRouter.get('/hello/:id', main_controller_1.hello);
 exports.mainRouter.get('/programs', main_controller_1.mainController.getPrograms);
 exports.mainRouter.post('/programs', main_controller_1.mainController.postProgram);
+exports.mainRouter.patch('/programs', main_controller_1.mainController.patchProgram);
 // router.post('/api/programs', createProgram);

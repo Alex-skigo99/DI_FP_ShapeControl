@@ -1,7 +1,7 @@
 import React from 'react';
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
-// import { useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 // import axios from "axios";
 // -------------- import @mui ---------------
 import Button from '@mui/material/Button';
@@ -23,66 +23,62 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 // ---------- local import --------------
 import { RootState } from '../app/store';
-// import { AppDispatch } from '../app/store';
-// import { postProg } from '../features/progs/progSlice';
+import { AppDispatch } from '../app/store';
+import { setCurrentProg, patchProg } from '../features/progs/progSlice';
+// import { resetStatus, fetchProgs } from '../features/progs/progSlice';
 import { progSliceStatus, Program, Day } from '../features/progs/progSlice';
-import { useCurrentUser } from '../features/users/hooks';
+// import { useCurrentUser } from '../features/users/hooks';
 import { useCurrentProgram } from '../features/progs/hooks';
+import FormControlLabel from '@mui/material/FormControlLabel';
+// import { MyDialog } from './MyDialog';
+
 
 
 export const CurrentProgram = () => {
     const defaultTheme = createTheme();
-    // const navigate = useNavigate()
-    const currentUser = useCurrentUser();
+    const navigate = useNavigate()
+    // const currentUser = useCurrentUser();
     const program = useCurrentProgram() as Program;
     const status: progSliceStatus = useSelector((state: RootState) => state.progReducer.status);
     const [close, setClose] = React.useState(program?.is_close);
-    // const dispatch = useDispatch<AppDispatch>();
-  
-    const [rows, setRows] = React.useState(
+    const [comment, setComment] = React.useState(program?.progcomment);
+    const [weight, setWeight] = React.useState(program?.out_weight);
+    const [name, setName] = React.useState(program?.progname);
+    const dispatch = useDispatch<AppDispatch>();
+    
+    const [rows, setRows] = React.useState<Array<Day & { row?: number }>>(
         program?.days.map((day,row) => {
             return {
+                ...day,
                 row: row+1,
-                id: day.id,
-                day: day.day,
-                plan: day.plan,
-                fact: day.fact,
-                stava: day.strava,
-                is_training: day.is_training,
-                workout: day.workout,
-                comment: day.comment
             }
         })
     );
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        // console.log('date - ', data.get('date')); // --------------
-        //delete day.id because we dont need to post it to database
-        // if (rows) {
-        //     rows.forEach(day => {
-        //     delete day.row
-        //     });
-        // };
+        // delete row because we dont need to post it to database
+        if (rows) {
+            rows.forEach(item => {
+            delete item.row
+            });
+        };
         const progData: Program = {
             ...program,
-            out_weight: data.get('out_weight') as any,
-            progcomment: data.get('progcomment') as string,
-            tips: data.get('tips') as string,
-            grade: data.get('grade') as string,
+            out_weight: weight,
+            progcomment: comment,
+            progname: name,
             is_close: close,
-            user_id: currentUser?.id as number,
             days: rows as Day[]
         };
         console.log('progData- ', progData); //---------------
-        // dispatch(postProg(progData));
+        dispatch(patchProg(progData));
     };
 
     const rowUpdate = (updatedRow: any) => {
         if (!rows) return updatedRow;
         let new_days = rows.map(item => item);
-        new_days[updatedRow.id-1] = updatedRow;
+        new_days[updatedRow.row-1] = updatedRow;
         setRows(new_days);
         return updatedRow;
     };
@@ -101,7 +97,7 @@ export const CurrentProgram = () => {
         field: 'fact',
         headerName: 'Fact',
         type: 'number',
-        editable: true,
+        editable: !close,
         align: 'left',
         headerAlign: 'left',
     },
@@ -124,13 +120,13 @@ export const CurrentProgram = () => {
         field: 'workout',
         headerName: 'Workout type',
         // width: 150,
-        editable: true,
+        editable: !close,
     },
     {
         field: 'comment',
         headerName: 'Comment',
-        // width: 200,
-        editable: true,
+        width: 250,
+        editable: !close,
     },
     ];
 
@@ -148,43 +144,69 @@ export const CurrentProgram = () => {
         >
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <Grid container spacing={2}>
+                <Grid item xs={8} >
+                    <TextField
+                        disabled={close}
+                        fullWidth
+                        size="small"
+                        id="progname"
+                        label="Program name"
+                        name="progname"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                    />
+                </Grid>
+                <Grid item xs={4} >
+                    <FormControlLabel control={
+                        <Switch
+                            checked={close}
+                            color="secondary"
+                            onChange={() => setClose(!close)}
+                            inputProps={{ 'aria-label': 'controlled' }}
+                            />
+                        } label="Program close" />
+                </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                     <TextField
                         disabled
                         fullWidth
+                        size="small"
                         id="level"
                         label="Level"
                         name="level"
-                        defaultValue={program?.level}
+                        value={program?.level}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
                     <TextField
                         disabled
                         fullWidth
+                        size="small"
                         id="grade"
                         label="Grade"
                         name="grade"
-                        defaultValue={program?.grade}
+                        value={program?.grade}
                     />
                 </Grid>
-                <Grid item xs={12} sm={4} md={2}>
+                <Grid item xs={12} sm={4} md={3}>
                 <TextField
                     fullWidth
                     disabled
+                    size="small"
                     type="number"
                     InputLabelProps={{
                     shrink: true,
                     }}
                     id="in_weight"
                     label="Begining weight"
-                    defaultValue={program?.in_weight}
+                    value={program?.in_weight}
                     name="in_weight"
                 />
                 </Grid>
-                <Grid item xs={12} sm={4} md={2}>
+                <Grid item xs={12} sm={4} md={3}>
                 <TextField
                     fullWidth
+                    size="small"
                     disabled={close}
                     type="number"
                     InputLabelProps={{
@@ -192,16 +214,10 @@ export const CurrentProgram = () => {
                     }}
                     id="out_weight"
                     label="Final weight"
-                    defaultValue={program?.out_weight}
+                    value={weight}
+                    onChange={(e) => setWeight(Number(e.target.value))}
                     name="out_weight"
                 />
-                </Grid>
-                <Grid item xs={12} sm={4} md={2}>
-                    <Switch
-                        checked={close}
-                        onChange={() => setClose(!close)}
-                        inputProps={{ 'aria-label': 'controlled' }}
-                        />
                 </Grid>
                 <Grid item xs={12}>
                 <TextField
@@ -211,8 +227,8 @@ export const CurrentProgram = () => {
                     id="progcomment"
                     label="Comment"
                     name="progcomment"
-                    defaultValue={program?.progcomment}
-                    autoComplete="my-comments"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
                 />
                 </Grid>
                 <Grid item xs={12}>
@@ -223,26 +239,20 @@ export const CurrentProgram = () => {
                     id="tips"
                     label="Tips"
                     name="tips"
-                    defaultValue={program?.tips}
+                    value={program?.tips}
                 />
                 </Grid>
                 <Grid item xs={12}>
                 <DataGrid 
                     rows={rows} 
                     columns={columns}
+                    rowHeight={42}
                     hideFooter
                     processRowUpdate={(updatedRow) =>
                     rowUpdate(updatedRow)
                     }
                 />
                 </Grid>
-
-                {/* <Grid item xs={12}>
-                <FormControlLabel
-                    control={<Checkbox value="allowExtraEmails" color="primary" />}
-                    label="I want to receive inspiration, marketing promotions and updates via email."
-                />
-                </Grid> */}
             </Grid>
             <Button
                 type="submit"
@@ -250,6 +260,26 @@ export const CurrentProgram = () => {
                 sx={{ mt: 3, mb: 2 }}
             >
                 Save
+            </Button>
+            <Button
+                type="button"
+                variant='outlined'
+                onClick={() => {
+                    dispatch(setCurrentProg(undefined));
+                    navigate('/progs')
+                }}
+                sx={{ mt: 3, mb: 2, ml: 3 }}
+            >
+                Cancel
+            </Button>
+            <Button
+                type="button"
+                variant='outlined'
+                // onClick={() => {
+                // }}
+                sx={{ mt: 3, mb: 2, ml: 50 }}
+            >
+                request menu from AI
             </Button>
             </Box>
         </Box>

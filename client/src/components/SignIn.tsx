@@ -25,7 +25,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useCurrentUser } from '../features/users/hooks';
 import { resetUserSliceStatus, signinPost } from '../features/users/userSlice';
 import { RootState, AppDispatch } from '../app/store';
-import { fetchProgs } from '../features/progs/progSlice';
+import { fetchProgs, setCurrentProg } from '../features/progs/progSlice';
 
 // function Copyright(props: any) {
 //   return (
@@ -71,8 +71,9 @@ export default function SignIn() {
   };
 
   if (currentUser) {
-    dispatch(fetchProgs(currentUser.id as number))
-    navigate('/progs')
+    dispatch(setCurrentProg(undefined));
+    dispatch(fetchProgs(currentUser.id as number));
+    navigate('/progs');
   };
 
 

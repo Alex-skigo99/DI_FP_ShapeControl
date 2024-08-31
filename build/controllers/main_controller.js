@@ -36,7 +36,17 @@ exports.mainController = {
         const progData = req.body;
         main_model_2.mainModel._postProgram(progData)
             .then(result => {
-            res.json(result);
+            res.status(201).json(result);
+        })
+            .catch(() => {
+            res.status(404).json({ message: 'something went wrong!!!' });
+        });
+    },
+    patchProgram: (req, res) => {
+        const progData = req.body;
+        main_model_2.mainModel._patchProgram(progData)
+            .then(result => {
+            res.status(206).json(result);
         })
             .catch(() => {
             res.status(404).json({ message: 'something went wrong!!!' });

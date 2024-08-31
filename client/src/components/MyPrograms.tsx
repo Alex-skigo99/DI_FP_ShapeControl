@@ -24,8 +24,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 // ---------- local import --------------
 import { AppDispatch, RootState } from '../app/store';
 import { progSliceStatus, setCurrentProg } from '../features/progs/progSlice';
-// import { Day, Program } from '../features/progs/progSlice';
-// import { useCurrentUser } from '../features/users/hooks';
+import { resetStatus, fetchProgs } from '../features/progs/progSlice';
+import { useCurrentUser } from '../features/users/hooks';
 import { usePrograms } from '../features/progs/hooks';
 import { MyDialog } from './MyDialog';
 import { CurrentProgram } from './CurrentProgram';
@@ -35,7 +35,7 @@ import { useCurrentProgram } from '../features/progs/hooks';
 export default function MyPrograms() {
   const defaultTheme = createTheme();
   const navigate = useNavigate()
-//   const currentUser = useCurrentUser();
+  const currentUser = useCurrentUser();
   const programs = usePrograms();
   const currentProgram = useCurrentProgram();
   const status: progSliceStatus = useSelector((state: RootState) => state.progReducer.status);
@@ -66,7 +66,32 @@ export default function MyPrograms() {
         )
     };
     console.log('MyPrograms: ', currentProgram);//-------------------
-    
+  
+    if (currentProgram) {
+        return (
+        <CurrentProgram />
+        )
+    };
+
+    if (status == 'succeeded') {
+        if (currentUser) {
+            dispatch(fetchProgs(currentUser.id as number));
+        }
+        dispatch(setCurrentProg(undefined));
+        dispatch(resetStatus());
+        return (
+          <MyDialog 
+              title = 'Succeeded'
+              text = 'The program has been updated'
+              btnText='Ok'
+              handleClose={() => {
+                navigate('/progs')
+                }}
+          />
+        )
+      };    
+
+
   return (
     <ThemeProvider theme={defaultTheme}>
         <Container component="main" maxWidth="sm" >
@@ -81,20 +106,18 @@ export default function MyPrograms() {
                 onChange={handleChange}
             >
                 {(Array.isArray(programs) ? programs : []).map((prog, idx) => (
-                    <MenuItem key={idx} value={idx}>{prog.progname}</MenuItem>))}
+                    <MenuItem key={idx} value={idx}>{prog.progname}{prog.is_close? ' (close)':''}</MenuItem>))}
             </Select>
             </FormControl>
             </Grid>
         </Grid>
         </Container>
-        {currentProgram ? <CurrentProgram/> : <></>}
         <Backdrop
             sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
             open={status === 'loading'}
             >
             <CircularProgress color="inherit" />
         </Backdrop>  
-
     </ThemeProvider>
   );
 }
