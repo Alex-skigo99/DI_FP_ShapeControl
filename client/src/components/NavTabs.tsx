@@ -76,10 +76,10 @@ export default function NavTabs() {
         >
           SHAPE CONTROL
         </Typography>
-            <LinkTab label="Home" to="/" />
-            <LinkTab label="New program" to="/dash" />
             {currentUser?
               <>
+                <LinkTab label="My programs" to="/progs" />
+                <LinkTab label="New program" to="/create" />
                 <LinkTab label="Log Out" to="/logout" />
                 <AccountCircleIcon/>
                 <Typography variant="overline" display="block" gutterBottom>

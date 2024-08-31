@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 // import axios from "axios";
-// imports material UI
+// ------------- imports material UI ---------------
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -16,11 +16,16 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-// local imports
+
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
+
+// ------------- local imports -------------
 // import { API } from '../utils/consts';
-// import { useCurrentUser } from '../features/users/hooks';
-import { signinPost } from '../features/users/userSlice';
+import { useCurrentUser } from '../features/users/hooks';
+import { resetUserSliceStatus, signinPost } from '../features/users/userSlice';
 import { RootState, AppDispatch } from '../app/store';
+import { fetchProgs } from '../features/progs/progSlice';
 
 // function Copyright(props: any) {
 //   return (
@@ -39,6 +44,7 @@ const defaultTheme = createTheme();
 
 export default function SignIn() {
   const [message, setMessage] = React.useState("");
+  const currentUser = useCurrentUser();
   const { loading, error } = useSelector((state: RootState) => state.userReducer);
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
@@ -50,38 +56,23 @@ export default function SignIn() {
       username: data.get('username') as string,
       password: data.get('password') as string,
     };
-    console.log(loginData);  //--------------
-
+    console.log('SigninData-', loginData);  //--------------
     dispatch(signinPost(loginData));
-
-  //   try {
-  //     const response = await axios.post(
-  //       API.login,
-  //       loginData,
-  //       { withCredentials: true }
-  //     );
-
-  //     if (response.status === 200) {
-  //       setMessage(response.data.message);
-  //       console.log(response.data); //--------------------
-  //       const dispatch = useDispatch();
-  //       // store users data after succsess login
-  //       dispatch(setCurrentUser(response.data.user));
-  //     }
-  //   } catch (err: any) {
-    //     console.log(err);  //-----------------
-    //     setMessage(err.response.data.message);
-    //   }
-    navigate('/')
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    console.log('loading- ', loading);
   };
 
   if (error) {
-    console.log(error);  //-----------------
-    setMessage(error as string);
+    console.log('Signin error-', error);  //-----------------
+    setMessage('Sign in failed!');
+    dispatch(resetUserSliceStatus())
+  };
+
+  if (currentUser) {
+    dispatch(fetchProgs(currentUser.id as number))
+    navigate('/progs')
   };
 
 
@@ -152,6 +143,12 @@ export default function SignIn() {
         </Box>
         {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
       </Container>
+      <Backdrop
+        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        open={loading}
+        >
+        <CircularProgress color="inherit" />
+    </Backdrop>  
     </ThemeProvider>
   );
 }

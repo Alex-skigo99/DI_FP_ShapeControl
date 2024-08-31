@@ -14,5 +14,5 @@ userRouter.get("/:id", verifyToken, userController.getUserById);
 
 userRouter.get("/auth", verifyToken, (req: CustomRequest, res: express.Response) => {
   console.log('userRouter-req.username =>', req.username);
-  res.sendStatus(200);
+  res.status(200);
 });

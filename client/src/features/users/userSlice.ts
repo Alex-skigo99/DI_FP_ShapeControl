@@ -5,7 +5,7 @@ import { RootState } from '../../app/store';
 import { API } from '../../utils/consts';
 
 interface InitialStateType {
-    currentUser: Pick<User, 'id' | 'username' | 'age' | 'gender' | 'height'> | undefined,
+    currentUser: User | undefined,
     loading: boolean,
     error: SerializedError | null
 };
@@ -41,6 +41,10 @@ const userSlice = createSlice({
             const response = axios.get(API.logout);
             console.log('logout-response- ', response);
         },
+        resetUserSliceStatus: (state) => {
+            state.loading = false;
+            state.error = null;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -62,5 +66,5 @@ const userSlice = createSlice({
 });
 
 export const getCurrentUser = (state: RootState) => state.userReducer.currentUser;
-export const {logout} = userSlice.actions;
+export const {logout, resetUserSliceStatus} = userSlice.actions;
 export default userSlice.reducer;

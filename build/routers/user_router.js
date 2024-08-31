@@ -16,5 +16,5 @@ exports.userRouter.get("/all", verifyToken_1.verifyToken, user_controller_1.user
 exports.userRouter.get("/:id", verifyToken_1.verifyToken, user_controller_1.userController.getUserById);
 exports.userRouter.get("/auth", verifyToken_1.verifyToken, (req, res) => {
     console.log('userRouter-req.username =>', req.username);
-    res.sendStatus(200);
+    res.status(200);
 });

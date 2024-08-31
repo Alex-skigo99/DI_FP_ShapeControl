@@ -1,8 +1,11 @@
-const API_URL = import.meta.env.VITE_APP_API_URL;
-const USER_URL = import.meta.env.VITE_APP_USER_URL;
+// const API_URL = import.meta.env.VITE_APP_API_URL;
+// const USER_URL = import.meta.env.VITE_APP_USER_URL;
+const API_URL = '/api/';
+const USER_URL = '/user/';
 
 export const API = {
     hello: API_URL + 'hello',
+    programs: API_URL + 'programs',
     login: USER_URL + 'login',
     logout: USER_URL + 'logout',
     register: USER_URL + 'register',
@@ -10,17 +13,21 @@ export const API = {
     userById: USER_URL,
     auth: USER_URL + 'auth'
 };
+export const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+export type LevelType = 'stable' | 'progress' | 'jump';
+export type LevelIdxType = {
+    [key in LevelType]: number;
+  };
 
-const user_obj = {
-    id: 0,
-    username: '',
-    password: '',
-    token: '',
-    refresh_token: '',
-    email: '',
-    gender: '',
-    age: 0,
-    height: 0,
-    strava_id: 0
+export const activityIndex = 1.3;
+
+export interface User {
+    id?: number,
+    username: string,
+    password?: string,
+    email?: string,
+    gender: string,
+    age: number,
+    height: number,
+    strava_id?: number 
 };
-export type User = Partial<typeof user_obj>;
