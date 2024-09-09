@@ -1,6 +1,12 @@
 import { Request, Response } from "express";
 import { _hello } from "../models/main_model";
 import { mainModel } from "../models/main_model";
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
+dotenv.config();
+  
+const openai = new OpenAI();
+  
 
 export const hello = (req: Request, res: Response) => {
     const { id } = req.params;
@@ -52,5 +58,22 @@ export const mainController = {
             .catch(() => {
                 res.status(404).json({message:'something went wrong!!!'});
             })
+    },
+
+    gpt: async (req: Request, res: Response) => {
+        const {prompt} = req.query;
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: "You are a helpful assistant." },
+                {
+                    role: "user",
+                    content: prompt as string,
+                },
+            ],
+        });
+        let result = completion.choices[0].message;
+        console.log(result);
+        res.status(200).json(result);
     }
 };

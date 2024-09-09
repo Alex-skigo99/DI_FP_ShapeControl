@@ -158,13 +158,13 @@ export default function ProgramCreateForm() {
   ];
 
   if (status == 'succeeded') {
-    dispatch(resetStatus());
     return (
       <MyDialog 
-          title = 'Succeeded'
-          text = 'Your new 7-day meal program successful created and store to database.'
-          btnText='Ok'
-          handleClose={() => {
+      title = 'Succeeded'
+      text = 'Your new 7-day meal program successful created and store to database.'
+      btnText='Ok'
+      handleClose={() => {
+            dispatch(resetStatus());
             navigate('/progs')
             }}
       />

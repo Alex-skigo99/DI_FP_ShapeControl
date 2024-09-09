@@ -78,13 +78,13 @@ export default function MyPrograms() {
             dispatch(fetchProgs(currentUser.id as number));
         }
         dispatch(setCurrentProg(undefined));
-        dispatch(resetStatus());
         return (
-          <MyDialog 
-              title = 'Succeeded'
-              text = 'The program has been updated'
-              btnText='Ok'
-              handleClose={() => {
+            <MyDialog 
+            title = 'Succeeded'
+            text = 'The program has been updated'
+            btnText='Ok'
+            handleClose={() => {
+                dispatch(resetStatus());
                 navigate('/progs')
                 }}
           />

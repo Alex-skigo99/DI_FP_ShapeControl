@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-// import axios from "axios";
+import axios from "axios";
 // -------------- import @mui ---------------
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -30,6 +30,10 @@ import { progSliceStatus, Program, Day } from '../features/progs/progSlice';
 // import { useCurrentUser } from '../features/users/hooks';
 import { useCurrentProgram } from '../features/progs/hooks';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { API } from '../utils/consts';
+import Typography from '@mui/material/Typography';
+import CardContent from '@mui/material/CardContent';
+import Card from '@mui/material/Card';
 // import { MyDialog } from './MyDialog';
 
 
@@ -44,6 +48,7 @@ export const CurrentProgram = () => {
     const [comment, setComment] = React.useState(program?.progcomment);
     const [weight, setWeight] = React.useState(program?.out_weight);
     const [name, setName] = React.useState(program?.progname);
+    const [menu, setMenu] = React.useState('');
     const dispatch = useDispatch<AppDispatch>();
     
     const [rows, setRows] = React.useState<Array<Day & { row?: number }>>(
@@ -75,6 +80,23 @@ export const CurrentProgram = () => {
         dispatch(patchProg(progData));
     };
 
+    const handleAI = async () => {
+        let submit = `give me a menu for breakfast, lunch and dinner total ${program.days[0].plan} kcal?`
+        try {
+            const response = await axios.get(
+              API.ai + '?' + submit,
+              { withCredentials: true }
+            );
+            if (response.status === 200) {
+              console.log('menu', response.data); //----------------
+              setMenu(response.data);
+            //   navigate('/progs')
+            }
+          } catch (error: any) {
+            console.log(error);  //-----------------
+          }
+    };
+  
     const rowUpdate = (updatedRow: any) => {
         if (!rows) return updatedRow;
         let new_days = rows.map(item => item);
@@ -275,14 +297,23 @@ export const CurrentProgram = () => {
             <Button
                 type="button"
                 variant='outlined'
-                // onClick={() => {
-                // }}
+                onClick={handleAI}
                 sx={{ mt: 3, mb: 2, ml: 50 }}
             >
                 request menu from AI
             </Button>
             </Box>
         </Box>
+        <Card sx={{ minWidth: 800 }}>
+            <CardContent>
+                <Typography variant="h5" component="div">
+                    Menu
+                </Typography>
+                <Typography variant="body2">
+                {menu}
+                </Typography>
+            </CardContent>
+        </Card>
         </Container>
         <Backdrop
         sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}

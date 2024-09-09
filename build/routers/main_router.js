@@ -8,6 +8,7 @@ const express_1 = __importDefault(require("express"));
 const main_controller_1 = require("../controllers/main_controller");
 exports.mainRouter = express_1.default.Router();
 exports.mainRouter.get('/hello/:id', main_controller_1.hello);
+exports.mainRouter.get('/gpt', main_controller_1.mainController.gpt);
 exports.mainRouter.get('/programs', main_controller_1.mainController.getPrograms);
 exports.mainRouter.post('/programs', main_controller_1.mainController.postProgram);
 exports.mainRouter.patch('/programs', main_controller_1.mainController.patchProgram);

@@ -5,6 +5,7 @@ const USER_URL = '/user/';
 
 export const API = {
     hello: API_URL + 'hello',
+    ai: API_URL + 'gpt',
     programs: API_URL + 'programs',
     login: USER_URL + 'login',
     logout: USER_URL + 'logout',

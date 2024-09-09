@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useDispatch } from 'react-redux';
+
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -22,6 +24,10 @@ import FormLabel from '@mui/material/FormLabel';
 import { API } from '../utils/consts';
 import Alert from '@mui/material/Alert';
 
+import { setCurrentProg } from '../features/progs/progSlice';
+import { AppDispatch } from '../app/store';
+
+
 interface registerData {
   username: string,
   password: string,
@@ -30,24 +36,13 @@ interface registerData {
   height: number,
 };
 
-// function Copyright(props: any) {
-//   return (
-//     <Typography variant="body2" color="text.secondary" align="center" {...props}>
-//       {'Copyright © '}
-//       <Link color="inherit" href="https://mui.com/">
-//         Your Website
-//       </Link>{' '}
-//       {new Date().getFullYear()}
-//       {'.'}
-//     </Typography>
-//   );
-// }
-
 export default function SignUp() {
 
   const defaultTheme = createTheme();
   const [message, setMessage] = React.useState('');
   const navigate = useNavigate()
+  const dispatch = useDispatch<AppDispatch>();
+
 
   const register = async (data: registerData) => {
     try {
@@ -61,6 +56,7 @@ export default function SignUp() {
         setMessage(response.data.message);
         console.log(response.data); //----------------
         // context
+        dispatch(setCurrentProg(undefined));
         navigate('/login')
       }
       else if (response.status === 200) {

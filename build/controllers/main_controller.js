@@ -1,8 +1,15 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.mainController = exports.hello = void 0;
 const main_model_1 = require("../models/main_model");
 const main_model_2 = require("../models/main_model");
+const openai_1 = __importDefault(require("openai"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const openai = new openai_1.default();
 const hello = (req, res) => {
     const { id } = req.params;
     console.log(id);
@@ -51,5 +58,21 @@ exports.mainController = {
             .catch(() => {
             res.status(404).json({ message: 'something went wrong!!!' });
         });
+    },
+    gpt: async (req, res) => {
+        const { prompt } = req.query;
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                { role: "system", content: "You are a helpful assistant." },
+                {
+                    role: "user",
+                    content: prompt,
+                },
+            ],
+        });
+        let result = completion.choices[0].message;
+        console.log(result);
+        res.status(200).json(result);
     }
 };

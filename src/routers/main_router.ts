@@ -4,6 +4,7 @@ import { hello, mainController } from '../controllers/main_controller';
 export const mainRouter = express.Router();
 
 mainRouter.get('/hello/:id', hello);
+mainRouter.get('/gpt', mainController.gpt);
 mainRouter.get('/programs', mainController.getPrograms);
 mainRouter.post('/programs', mainController.postProgram);
 mainRouter.patch('/programs', mainController.patchProgram);
