@@ -12,7 +12,7 @@ exports.mainModel = {
     _getPrograms: async (userid) => {
         const data = await (0, db_1.db)('programs as p')
             .leftJoin('data as d', 'p.id', 'd.prog_id')
-            .select('p.id', 'p.progname', 'p.level', 'p.in_weight', 'p.out_weight', 'p.is_close', 'p.progcomment', 'p.tips', 'p.grade', 'p.user_id')
+            .select('p.id', 'p.progname', 'p.level', 'p.in_weight', 'p.out_weight', 'p.is_close', 'p.progcomment', 'p.tips', 'p.grade', 'p.menu', 'p.user_id')
             .where({ user_id: userid })
             .groupBy('p.id')
             .select(db_1.db.raw(`

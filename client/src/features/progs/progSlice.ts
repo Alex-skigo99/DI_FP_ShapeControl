@@ -27,6 +27,7 @@ export interface Program {
     progcomment: string,
     grade?: string,
     tips?: string,
+    menu?: string,
     user_id: number,
     days: Day[]
 };

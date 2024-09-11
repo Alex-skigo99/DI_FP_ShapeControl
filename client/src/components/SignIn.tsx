@@ -26,6 +26,7 @@ import { useCurrentUser } from '../features/users/hooks';
 import { resetUserSliceStatus, signinPost } from '../features/users/userSlice';
 import { RootState, AppDispatch } from '../app/store';
 import { fetchProgs, setCurrentProg } from '../features/progs/progSlice';
+import { red } from '@mui/material/colors';
 
 // function Copyright(props: any) {
 //   return (
@@ -130,9 +131,9 @@ export default function SignIn() {
             </Button>
             <Grid container>
               <Grid item xs>
-                <Link href="#" variant="body2">
+                <Typography variant="body2" sx={{color: red}}>
                   {message}
-                </Link>
+                </Typography>
               </Grid>
               <Grid item>
                 <Link href="/register" variant="body2">

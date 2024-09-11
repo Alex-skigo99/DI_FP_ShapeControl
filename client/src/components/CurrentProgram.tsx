@@ -34,6 +34,7 @@ import { API } from '../utils/consts';
 import Typography from '@mui/material/Typography';
 import CardContent from '@mui/material/CardContent';
 import Card from '@mui/material/Card';
+import Menu from './Menu';
 // import { MyDialog } from './MyDialog';
 
 
@@ -48,7 +49,7 @@ export const CurrentProgram = () => {
     const [comment, setComment] = React.useState(program?.progcomment);
     const [weight, setWeight] = React.useState(program?.out_weight);
     const [name, setName] = React.useState(program?.progname);
-    const [menu, setMenu] = React.useState('');
+    const [menu, setMenu] = React.useState(program?.menu);
     const dispatch = useDispatch<AppDispatch>();
     
     const [rows, setRows] = React.useState<Array<Day & { row?: number }>>(
@@ -73,6 +74,7 @@ export const CurrentProgram = () => {
             out_weight: weight,
             progcomment: comment,
             progname: name,
+            menu: menu,
             is_close: close,
             days: rows as Day[]
         };
@@ -81,15 +83,15 @@ export const CurrentProgram = () => {
     };
 
     const handleAI = async () => {
+        
         let submit = `give me a menu for breakfast, lunch and dinner total ${program.days[0].plan} kcal?`
         try {
             const response = await axios.get(
-              API.ai + '?' + submit,
+              API.ai + '?prompt=' + submit,
               { withCredentials: true }
             );
             if (response.status === 200) {
-              console.log('menu', response.data); //----------------
-              setMenu(response.data);
+              setMenu(response.data.content);
             //   navigate('/progs')
             }
           } catch (error: any) {
@@ -253,7 +255,7 @@ export const CurrentProgram = () => {
                     onChange={(e) => setComment(e.target.value)}
                 />
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                 <TextField
                     fullWidth
                     disabled
@@ -263,7 +265,7 @@ export const CurrentProgram = () => {
                     name="tips"
                     value={program?.tips}
                 />
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12}>
                 <DataGrid 
                     rows={rows} 
@@ -300,7 +302,7 @@ export const CurrentProgram = () => {
                 onClick={handleAI}
                 sx={{ mt: 3, mb: 2, ml: 50 }}
             >
-                request menu from AI
+                Menu suggestion
             </Button>
             </Box>
         </Box>
@@ -309,9 +311,7 @@ export const CurrentProgram = () => {
                 <Typography variant="h5" component="div">
                     Menu
                 </Typography>
-                <Typography variant="body2">
-                {menu}
-                </Typography>
+                <Menu text={menu ? menu : ''}/>
             </CardContent>
         </Card>
         </Container>

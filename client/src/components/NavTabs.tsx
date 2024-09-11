@@ -24,7 +24,7 @@ export default function NavTabs() {
 
   return (
   <Box sx={{flexGrow: 1}}>
-    <AppBar position='static' sx={{color: 'white'}}>
+    <AppBar position='fixed' sx={{color: 'white'}}>
       <Toolbar>
         <Typography
           variant="h6"

@@ -20,6 +20,7 @@ export const mainModel = {
             'p.progcomment',
             'p.tips',
             'p.grade',
+            'p.menu',
             'p.user_id'
         )
         .where({user_id: userid})

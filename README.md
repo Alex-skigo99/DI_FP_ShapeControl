@@ -1,4 +1,4 @@
-# DI_FP_ShapeControl
+# ShapeControl
 
  This app helps you control your calorie intake. Once authenticated, you can create your own calorie plan based on your age, height, weight, and activity level.
 
@@ -22,13 +22,13 @@ Build frontend
 
 ```bash
   cd client
-  sudo npm build
+  sudo npm run build
 ```
 Start backend
 
 ```bash
-  cd ../build
-  sudo nodemon app.js
+  cd ..
+  sudo nodemon build/app.js
 ```
 
 ## Environment Variables
@@ -52,6 +52,12 @@ TS, React, Redux
 
 **Server:** 
 Node.js, Express, Knex
+
+**Database:** 
+PostgreSQL on Neon.tech
+
+**Deploy:** 
+render.com
 
 ## Authors
 

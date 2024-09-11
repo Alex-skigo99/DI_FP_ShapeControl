@@ -40,6 +40,7 @@ db.schema.withSchema('public')
   table.string('progcomment', 300);
   table.string('tips', 300);
   table.string('grade', 100);
+  table.text('menu');
   table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE');
 })
 .then(() => console.log('Table programs created.'))

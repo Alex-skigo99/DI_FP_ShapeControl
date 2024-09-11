@@ -17,8 +17,8 @@ const hello = (req, res) => {
         .then(result => {
         res.json(result);
     })
-        .catch(() => {
-        res.status(404).json({ message: 'something went wrong!!!' });
+        .catch((err) => {
+        res.status(500).json({ message: err.message });
     });
 };
 exports.hello = hello;
@@ -35,8 +35,8 @@ exports.mainController = {
                 res.status(200).json(data);
             }
         })
-            .catch(() => {
-            res.status(404).json({ message: 'something went wrong!!!' });
+            .catch((err) => {
+            res.status(500).json({ message: err.message });
         });
     },
     postProgram: (req, res) => {
@@ -45,8 +45,8 @@ exports.mainController = {
             .then(result => {
             res.status(201).json(result);
         })
-            .catch(() => {
-            res.status(404).json({ message: 'something went wrong!!!' });
+            .catch((err) => {
+            res.status(500).json({ message: err.message });
         });
     },
     patchProgram: (req, res) => {
@@ -55,12 +55,13 @@ exports.mainController = {
             .then(result => {
             res.status(206).json(result);
         })
-            .catch(() => {
-            res.status(404).json({ message: 'something went wrong!!!' });
+            .catch((err) => {
+            res.status(500).json({ message: err.message });
         });
     },
     gpt: async (req, res) => {
         const { prompt } = req.query;
+        console.log('prompt', prompt); //--------------
         const completion = await openai.chat.completions.create({
             model: "gpt-4o-mini",
             messages: [
@@ -72,7 +73,6 @@ exports.mainController = {
             ],
         });
         let result = completion.choices[0].message;
-        console.log(result);
         res.status(200).json(result);
     }
 };
