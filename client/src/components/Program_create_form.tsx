@@ -1,10 +1,9 @@
-//       {date ? <p>{new Date(date).toLocaleDateString()}</p> : <p>Loading...</p>}
-
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from 'react-redux';
 // import axios from "axios";
 import dayjs from 'dayjs';
+
 // -------------- import @mui ---------------
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -19,13 +18,14 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 // import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 // import FormLabel from '@mui/material/FormLabel';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -84,12 +84,16 @@ export default function ProgramCreateForm() {
       is_close: false,
       in_weight: weight as number,
       user_id: currentUser?.id as number,
-      days: days
+      days: days.map((day, idx) => {
+        // delete day.id because we dont need to post it to database
+        delete day.id;
+        // add date to day object
+        return {...day, date: dayjs(data.get('date') as string).add(idx+1, 'day').format('YYYY-MM-DD')}
+      })
     };
-    // delete day.id because we dont need to post it to database
-    progData.days?.forEach(day => {
-      delete day.id
-    });
+    // progData.days?.forEach(day => {
+    //   delete day.id
+    // });
     console.log('progData- ', progData); //---------------
     dispatch(postProg(progData));
   };
@@ -159,7 +163,9 @@ export default function ProgramCreateForm() {
 
   if (status == 'succeeded') {
     return (
-      <MyDialog 
+      <MyDialog
+      open={true}
+      cancelBtn={false}
       title = 'Succeeded'
       text = 'Your new 7-day meal program successful created and store to database.'
       btnText='Ok'
@@ -173,7 +179,9 @@ export default function ProgramCreateForm() {
 
   if (!currentUser) {
     return (
-      <MyDialog 
+      <MyDialog
+          open={true}
+          cancelBtn={false}
           title = 'Access denied'
           text = 'Please sign up.'
           btnText='Ok'
@@ -231,7 +239,8 @@ export default function ProgramCreateForm() {
                     <DatePicker
                       label="Date of first day"
                       name="date"
-                      defaultValue={dayjs('2024-09-01')}
+                      format='YYYY-MM-DD'
+                      defaultValue={dayjs()}
                     />
                 </LocalizationProvider>
               </Grid>

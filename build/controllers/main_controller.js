@@ -27,7 +27,6 @@ exports.mainController = {
         const { userid } = req.query;
         main_model_2.mainModel._getPrograms(Number(userid))
             .then(data => {
-            // console.log('getProgram-data-', data); //--------------
             if (!data) {
                 res.status(204);
             }
@@ -52,8 +51,8 @@ exports.mainController = {
     patchProgram: (req, res) => {
         const progData = req.body;
         main_model_2.mainModel._patchProgram(progData)
-            .then(result => {
-            res.status(206).json(result);
+            .then(data => {
+            res.status(206).json(data);
         })
             .catch((err) => {
             res.status(500).json({ message: err.message });

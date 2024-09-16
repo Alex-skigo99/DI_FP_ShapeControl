@@ -6,18 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.userModel = void 0;
 const db_1 = require("../config/db");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const user_obj = {
-    id: 0,
-    username: '',
-    password: '',
-    token: '',
-    refresh_token: '',
-    email: '',
-    gender: '',
-    age: 0,
-    height: 0,
-    strava_id: 0
-};
+;
 exports.userModel = {
     createUser: async (userinfo) => {
         const { password } = userinfo;
@@ -25,7 +14,7 @@ exports.userModel = {
         try {
             //hash the password and insert into the' hashpwd table
             const hashPassword = await bcrypt_1.default.hash(password + "", 10);
-            const [user] = await trx(db_1.TABLES.users).insert({ ...userinfo, password: hashPassword }, Object.keys(user_obj));
+            const [user] = await trx(db_1.TABLES.users).insert({ ...userinfo, password: hashPassword }, Object.keys(userinfo));
             await trx.commit();
             return user;
         }
@@ -38,27 +27,9 @@ exports.userModel = {
     getUserByName: async (username = "") => {
         try {
             const user = await (0, db_1.db)(db_1.TABLES.users)
-                //   .select(...Object.keys(user_obj))
+                .select('id', 'username', 'password', 'age', 'gender', 'height', 'strava_id')
                 .where({ username })
                 .first();
-            return user;
-        }
-        catch (error) {
-            throw error;
-        }
-    },
-    getAllUsers: async () => {
-        try {
-            const users = await (0, db_1.db)(db_1.TABLES.users);
-            return users;
-        }
-        catch (error) {
-            throw error;
-        }
-    },
-    getUserById: async (id) => {
-        try {
-            const [user] = await (0, db_1.db)(db_1.TABLES.users).where({ id });
             return user;
         }
         catch (error) {
@@ -76,4 +47,42 @@ exports.userModel = {
             throw error;
         }
     },
+    updateUser: async (userdata) => {
+        try {
+            await (0, db_1.db)(db_1.TABLES.users)
+                .update(userdata)
+                .where({ id: userdata.id });
+            // return user;
+        }
+        catch (error) {
+            throw error;
+        }
+    },
+    createStravaConnect: async (user_id, scope, data) => {
+        const { access_token, refresh_token, expires_at } = data;
+        // try {
+        //   await db(TABLES.users)
+        //   .update(userdata)
+        //   .where({id: userdata.id});
+        //   // return user;
+        // } catch (error) {
+        //   throw error;
+        // }
+    },
+    // getAllUsers: async () => {
+    //   try {
+    //     const users = await db(TABLES.users);
+    //     return users;
+    //   } catch (error) {
+    //     throw error;
+    //   }
+    // },
+    // getUserById: async (id: number) => {
+    //   try {
+    //     const [user] = await db(TABLES.users).where({ id });
+    //     return user;
+    //   } catch (error) {
+    //     throw error;
+    //   }
+    // },
 };

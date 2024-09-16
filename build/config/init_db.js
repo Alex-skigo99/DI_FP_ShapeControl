@@ -5,10 +5,11 @@ const db_js_1 = require("./db.js");
 db_js_1.db.schema.withSchema('public')
     .createTable('strava', table => {
     table.increments('id').primary();
-    table.string('client_id', 30).notNullable().unique();
-    table.string('secret', 500);
-    table.string('token', 500);
-    table.string('refresh_token', 500);
+    table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE');
+    table.string('strava_token', 500);
+    table.boolean('scope');
+    table.timestamp('expires_at');
+    table.string('strava_refresh', 500);
 })
     .then(() => console.log('Table strava created.'))
     .catch(err => console.error(err));

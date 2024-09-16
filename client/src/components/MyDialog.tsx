@@ -19,18 +19,26 @@ const Transition = React.forwardRef(function Transition(
   });
 
 interface myDialogProps {
+    open: boolean,
     title: string,
     text: string,
+    cancelBtn: boolean,
     btnText: string,
-    handleClose: () => void
+    handleClose: (isCancel: boolean) => void
 }
 
 export const MyDialog = (props: myDialogProps) => {
-    const {title, text, btnText, handleClose} = props;
+    const {open, title, text, cancelBtn, btnText, handleClose} = props;
+    const handleOk = () => {
+        handleClose(false);
+    };
+    const handleCancel = () => {
+        handleClose(true);
+    };
 
     return (
         <Dialog
-            open={true}
+            open={open}
             TransitionComponent={Transition}
             keepMounted
             onClose={handleClose}
@@ -43,7 +51,8 @@ export const MyDialog = (props: myDialogProps) => {
             </DialogContentText>
             </DialogContent>
             <DialogActions>
-            <Button onClick={handleClose}>{btnText}</Button>
+            {cancelBtn ? <Button onClick={handleCancel}>Cancel</Button>: null}
+            <Button onClick={handleOk}>{btnText}</Button>
             </DialogActions>
       </Dialog>
   

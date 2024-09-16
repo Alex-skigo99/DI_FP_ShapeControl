@@ -7,8 +7,8 @@ exports.userController = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
-dotenv_1.default.config();
 const user_model_1 = require("../models/user_model");
+dotenv_1.default.config();
 exports.userController = {
     registerUser: async (req, res) => {
         try {
@@ -26,6 +26,18 @@ exports.userController = {
             res.status(500).json({ message: "internal server error" });
         }
     },
+    updateUser: async (req, res) => {
+        try {
+            await user_model_1.userModel.updateUser(req.body);
+            res.status(201).json({
+                message: "User updated successfully",
+            });
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).json({ message: "internal server error" });
+        }
+    },
     loginUser: async (req, res) => {
         const name = req.body.username;
         const password = req.body.password;
@@ -38,6 +50,7 @@ exports.userController = {
             if (!passwordMatch) {
                 return res.status(401).json({ message: "Authentication failed..." });
             }
+            delete user.password; // remove password from user object
             /** create the token */
             const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
             const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
@@ -60,10 +73,9 @@ exports.userController = {
             });
             console.log('login_controller - user:', user);
             await user_model_1.userModel.updateRefreshToken(refreshtoken, user.id);
-            let { id, username, age, gender, height } = user;
             res.json({
                 message: "Login succesfully",
-                user: { id, username, age, gender, height }
+                user,
             });
         }
         catch (error) {
@@ -74,28 +86,46 @@ exports.userController = {
     logOutUser: (req, res) => {
         res.clearCookie("token");
         res.clearCookie("refresh");
-        res.send('Token and refreshToken cookies have been deleted');
+        res.status(200).json({ message: 'Token and refreshToken cookies have been deleted' });
     },
-    getAllUsers: async (req, res) => {
-        console.log('getAllUser: ', req.userid, req.username);
+    stravaConnect: async (req, res) => {
+        const { code, state, scope } = req.query;
+        console.log('stravaConnect - code:', code, 'state:', state, 'scope', scope); //-------------------
+        let url = 'https://www.strava.com/oauth/token';
+        url += '?client_id=' + process.env.CLIENT_ID;
+        url += '&client_secret=' + process.env.CLIENT_SECRET;
+        url += '&code=' + code;
+        url += '&grant_type=authorization_code';
+        console.log('stravaConnect - url:', url); //-------------------
         try {
-            const users = await user_model_1.userModel.getAllUsers();
-            res.json(users);
+            const response = await fetch(url, { method: 'POST' });
+            const data = await response.json();
+            console.log('stravaConnect - data:', data); //-------------------
+            await user_model_1.userModel.createStravaConnect(Number(state), scope, data);
         }
         catch (error) {
             console.log(error);
-            res.status(500).json({ error: "internal server error" });
+            res.status(500).json({ message: "internal server error" });
         }
     },
-    getUserById: async (req, res) => {
-        const id = Number(req.params.id);
-        try {
-            const user = await user_model_1.userModel.getUserById(id);
-            res.json(user);
-        }
-        catch (error) {
-            console.log(error);
-            res.status(500).json({ error: "internal server error" });
-        }
-    },
+    // getAllUsers: async (req: CustomRequest, res: Response) => {
+    //   console.log('getAllUser: ', req.userid, req.username);
+    //   try {
+    //     const users = await userModel.getAllUsers();
+    //     res.json(users);
+    //   } catch (error) {
+    //     console.log(error);
+    //     res.status(500).json({ error: "internal server error" });
+    //   }
+    // },
+    // getUserById: async (req: Request, res: Response) => {
+    //   const id: number = Number(req.params.id);
+    //   try {
+    //     const user = await userModel.getUserById(id);
+    //     res.json(user);
+    //   } catch (error) {
+    //     console.log(error);
+    //     res.status(500).json({ error: "internal server error" });
+    //   }
+    // },
 };

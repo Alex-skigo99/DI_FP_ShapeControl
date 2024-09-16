@@ -8,7 +8,7 @@ export type progSliceStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
 export interface Day {
     id?: number, 
     day: string,
-    date?: string | Date, 
+    date?: string, 
     plan: number, 
     fact?: number, 
     strava?: number, 
@@ -75,6 +75,7 @@ export const patchProg = createAsyncThunk(
     'progs/patchProg',
     async (progData: Program, thunkAPI) => {
         try {
+            console.log('patchProg - progData: ', progData); //-------------------
             const response = await axios.patch(
                 API.programs,
                 progData,
@@ -95,9 +96,8 @@ const progSlice = createSlice({
             state.status = 'idle';
         },
         setCurrentProg: (state, action) => {
-            if (state.programs) {
-                state.currentProgram = state.programs[action.payload]
-            }
+            action.payload === undefined ? state.currentProgram = undefined 
+            : state.currentProgram = state.programs && state.programs[action.payload]
         }
     },
     extraReducers: (builder) => {
@@ -137,6 +137,8 @@ const progSlice = createSlice({
         .addCase(patchProg.fulfilled, (state, action) => {
             state.status = 'succeeded';
             console.log('patch action-payload: ', action.payload); //-------------------
+            state.programs = action.payload.data;
+
         })
         .addCase(patchProg.rejected, (state) => {
             state.status = 'failed';

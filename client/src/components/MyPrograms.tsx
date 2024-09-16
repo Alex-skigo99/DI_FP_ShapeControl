@@ -40,7 +40,6 @@ export default function MyPrograms() {
   const currentProgram = useCurrentProgram();
   const status: progSliceStatus = useSelector((state: RootState) => state.progReducer.status);
   const dispatch = useDispatch<AppDispatch>();
-  //   const [weight, setWeight] = React.useState(undefined as number | undefined);
   // const [open, setOpen] = React.useState(false);
     
   const handleChange = (event: SelectChangeEvent) => {
@@ -57,7 +56,9 @@ export default function MyPrograms() {
     
     if (!programs) {
         return (
-        <MyDialog 
+        <MyDialog
+            open={true}
+            cancelBtn={false}
             title = 'Hello'
             text = 'You do not have any program. Seems like you are a new client. Wellcome! You have to creata a first meal program.'
             btnText='Ok'
@@ -79,7 +80,9 @@ export default function MyPrograms() {
         }
         dispatch(setCurrentProg(undefined));
         return (
-            <MyDialog 
+            <MyDialog
+            open={true}
+            cancelBtn={false}
             title = 'Succeeded'
             text = 'The program has been updated'
             btnText='Ok'

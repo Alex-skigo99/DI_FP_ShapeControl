@@ -21,6 +21,19 @@ export const api = {
     get: <TResponse>(url: string) => 
         request<TResponse>(url),
 
+    get_credentials: <TResponse>(url: string) => 
+        request<TResponse>(url, {
+            method: 'GET',
+            credentials: 'include', // include cookies
+        }),
+
     post: <TBody extends BodyInit, TResponse>(url: string, body: TBody) => 
         request<TResponse>(url, { method: 'POST', body }),
+
+    post_credentials: <TBody extends BodyInit, TResponse>(url: string, body: TBody) => 
+        request<TResponse>(url, { 
+          method: 'POST',
+          body,
+          credentials: 'include',  // include cookies
+          }),
 };

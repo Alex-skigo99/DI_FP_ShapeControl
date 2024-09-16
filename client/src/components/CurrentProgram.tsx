@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import axios from "axios";
+// import axios from "axios";
 // -------------- import @mui ---------------
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -21,37 +21,39 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 
+import FormControlLabel from '@mui/material/FormControlLabel';
+
 // ---------- local import --------------
 import { RootState } from '../app/store';
 import { AppDispatch } from '../app/store';
 import { setCurrentProg, patchProg } from '../features/progs/progSlice';
 // import { resetStatus, fetchProgs } from '../features/progs/progSlice';
-import { progSliceStatus, Program, Day } from '../features/progs/progSlice';
+import { resetStatus, progSliceStatus, Program, Day } from '../features/progs/progSlice';
 // import { useCurrentUser } from '../features/users/hooks';
 import { useCurrentProgram } from '../features/progs/hooks';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import { API } from '../utils/consts';
-import Typography from '@mui/material/Typography';
-import CardContent from '@mui/material/CardContent';
-import Card from '@mui/material/Card';
 import Menu from './Menu';
-// import { MyDialog } from './MyDialog';
+import { api } from '../utils/http_requests';
+import FormDialog, {FormDialogData} from './FormDialog';
+import { MyDialog } from './MyDialog';
+import { API } from '../utils/consts';
+import { dataDayStrava, handleStravaResponse } from '../utils/handleStravaResponse';
+// import { lightGreen } from '@mui/material/colors';
 
 
 
 export const CurrentProgram = () => {
     const defaultTheme = createTheme();
     const navigate = useNavigate()
-    // const currentUser = useCurrentUser();
+    const dispatch = useDispatch<AppDispatch>();
     const program = useCurrentProgram() as Program;
     const status: progSliceStatus = useSelector((state: RootState) => state.progReducer.status);
+    // const currentUser = useCurrentUser();
+    // forms state
     const [close, setClose] = React.useState(program?.is_close);
     const [comment, setComment] = React.useState(program?.progcomment);
     const [weight, setWeight] = React.useState(program?.out_weight);
     const [name, setName] = React.useState(program?.progname);
     const [menu, setMenu] = React.useState(program?.menu);
-    const dispatch = useDispatch<AppDispatch>();
-    
     const [rows, setRows] = React.useState<Array<Day & { row?: number }>>(
         program?.days.map((day,row) => {
             return {
@@ -60,6 +62,8 @@ export const CurrentProgram = () => {
             }
         })
     );
+    // dialog state
+    const [openFormDialog, setOpenFormDialog] = React.useState(false);
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -83,21 +87,57 @@ export const CurrentProgram = () => {
     };
 
     const handleAI = async () => {
-        
-        let submit = `give me a menu for breakfast, lunch and dinner total ${program.days[0].plan} kcal?`
-        try {
-            const response = await axios.get(
-              API.ai + '?prompt=' + submit,
-              { withCredentials: true }
-            );
-            if (response.status === 200) {
-              setMenu(response.data.content);
-            //   navigate('/progs')
-            }
-          } catch (error: any) {
-            console.log(error);  //-----------------
-          }
+        setOpenFormDialog(true);
     };
+
+    // Close FormDialog
+    const handleCloseFormDialog = async (data?: FormDialogData) => {
+
+        setOpenFormDialog(false);
+        if (data) {
+            let url = API.ai + '?prompt=' + `give me a menu for breakfast, lunch and dinner using  total ${data.kcalAmount} kcal using (but not only) next foods: ${data.foodsPrefer}?`
+            let response: any = await api.get_credentials(url);
+            if (response) {
+                setMenu(response.content);
+            }
+        }
+    };
+    const handleDialogSuccessUpdate = (isCancel: boolean) => {
+        if (!isCancel) {
+            dispatch(setCurrentProg(undefined));
+            dispatch(resetStatus());
+            navigate('/progs')
+        } else {
+            dispatch(resetStatus());
+        }
+    };
+
+    const handleStrava = async () => {
+        let startDay = rows[0].date;
+        console.log('startDay- ', startDay); //----------------
+        if (startDay) {
+            let url = API.strava + '?userid=' + program.user_id
+                + '&after=' + rows[0].date + '&before=' + rows[rows.length-1].date;
+            let response: [] | undefined = await api.get_credentials(url);
+            if (response) {
+                let dataStrava: dataDayStrava[] = handleStravaResponse(response, startDay); // get kCal and about info from res array
+                let dataStavaLength = dataStrava.length; 
+                let new_days = rows.map((item, index) => { // add kCal and about info to days
+                    if (index < dataStavaLength) {
+                        return {
+                            ...item,
+                            strava: dataStrava[index].kCal,
+                            comment: item.comment + dataStrava[index].about
+                        }
+                    } else {
+                        return item;
+                    }
+                });
+                setRows(new_days);
+            }
+        }
+    };
+
   
     const rowUpdate = (updatedRow: any) => {
         if (!rows) return updatedRow;
@@ -281,7 +321,7 @@ export const CurrentProgram = () => {
             <Button
                 type="submit"
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ mt: 3, mb: 2, ml: 3 }}
             >
                 Save
             </Button>
@@ -298,29 +338,39 @@ export const CurrentProgram = () => {
             </Button>
             <Button
                 type="button"
+                color='warning'
+                variant='outlined'
+                onClick={handleStrava}
+                sx={{ mt: 3, mb: 2, ml: 30 }}
+            >
+                From Strava 
+            </Button>
+            <Button
+                type="button"
                 variant='outlined'
                 onClick={handleAI}
-                sx={{ mt: 3, mb: 2, ml: 50 }}
+                sx={{ mt: 3, mb: 2, ml: 3 }}
             >
                 Menu suggestion
             </Button>
             </Box>
         </Box>
-        <Card sx={{ minWidth: 800 }}>
-            <CardContent>
-                <Typography variant="h5" component="div">
-                    Menu
-                </Typography>
-                <Menu text={menu ? menu : ''}/>
-            </CardContent>
-        </Card>
+        {menu && <Menu text={menu}/>}
         </Container>
+        <FormDialog open={openFormDialog} kcalAmount={program.days[0].plan} onClose={handleCloseFormDialog} />
+        <MyDialog
+            open={status == 'succeeded'}
+            cancelBtn={true}
+            title = 'Success!'
+            text = 'Current program has been updated'
+            btnText='Select another'
+            handleClose={handleDialogSuccessUpdate} />
         <Backdrop
-        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
-        open={status == 'loading'}
-        >
-        <CircularProgress color="inherit" />
-    </Backdrop>  
+            sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+            open={status == 'loading'}
+            >
+            <CircularProgress color="inherit" />
+        </Backdrop>  
     </ThemeProvider>
     );
 };

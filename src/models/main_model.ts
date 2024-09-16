@@ -40,9 +40,10 @@ export const mainModel = {
                 'comment', d.comment,
                 'prog_id', d.prog_id
                 )
-            ) as days
-            `)
-        );
+                ORDER BY d.date ASC
+                ) as days
+                `)
+            );
         if (!data) return undefined;
         return data;
     },
@@ -69,10 +70,11 @@ export const mainModel = {
     },
     _patchProgram: async (data: any) => {
         let days = [...data.days];
+        let user_id = data.user_id;
         delete data.days;
         const trx = await db.transaction();
         try {
-            const result = await trx('programs')
+            await trx('programs')
                 .where({ id: data.id })
                 .update(data)
                 // .returning('*');
@@ -83,9 +85,11 @@ export const mainModel = {
                 .update(days[i])
             }
             await trx.commit();
-            console.log('_patchProgram - result: ', result); //-----------------
-            return result
-        } catch (error) {
+            // return all programs of the user
+            const progs = await mainModel._getPrograms(user_id)
+            return progs
+        } 
+        catch (error) {
             await trx.rollback();
             throw error
         }

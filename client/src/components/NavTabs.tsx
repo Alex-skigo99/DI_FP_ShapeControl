@@ -38,10 +38,11 @@ export default function NavTabs() {
                 <LinkTab label="My programs" to="/progs" />
                 <LinkTab label="New program" to="/create" />
                 <LinkTab label="Log Out" to="/logout" />
-                <AccountCircleIcon/>
+                <LinkTab icon={<AccountCircleIcon/>} label={currentUser.username} to="/user" />
+                {/* <AccountCircleIcon/>
                 <Typography variant="overline" display="block" gutterBottom>
                     {currentUser.username}
-                </Typography>
+                </Typography> */}
               </>
               : <LinkTab label="Sign In" to="/login" />
         }

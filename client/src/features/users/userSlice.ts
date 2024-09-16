@@ -30,6 +30,22 @@ export const signinPost = createAsyncThunk(
             return thunkAPI.rejectWithValue("Login failed");
         }
     }
+); 
+
+export const updateUser = createAsyncThunk(
+    'auth/updateUser',
+    async ( userData: User, thunkAPI) => {
+        try {
+            await axios.patch(
+                API.update,
+                userData,
+                { withCredentials: true }
+            );
+            return userData
+        } catch (err) {
+            return thunkAPI.rejectWithValue("Update failed");
+        }
+    }
 );  
 
 const userSlice = createSlice({
@@ -38,8 +54,7 @@ const userSlice = createSlice({
     reducers:{
         logout: (state) => {
             state.currentUser = undefined;
-            const response = axios.get(API.logout);
-            console.log('logout-response- ', response);
+            axios.get(API.logout);
         },
         resetUserSliceStatus: (state) => {
             state.loading = false;
@@ -60,11 +75,26 @@ const userSlice = createSlice({
         .addCase(signinPost.rejected, (state, action) => {
             state.loading = false;
             state.error = action.error;
+        })
+        .addCase(updateUser.pending, (state) => {
+            state.loading = true;
+            state.error = null;
+        })
+        .addCase(updateUser.fulfilled, (state, action) => {
+            state.loading = false;
+            state.error = null;
+            state.currentUser = action.payload;
+        })
+        .addCase(updateUser.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.error;
         });
     },
 
 });
 
 export const getCurrentUser = (state: RootState) => state.userReducer.currentUser;
+export const getUserLoading = (state: RootState) => state.userReducer.loading;
+export const getUserError = (state: RootState) => state.userReducer.error;
 export const {logout, resetUserSliceStatus} = userSlice.actions;
 export default userSlice.reducer;
