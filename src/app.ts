@@ -4,6 +4,7 @@ import path from "path";
 import { mainRouter } from './routers/main_router';
 import { userRouter } from './routers/user_router';
 import cookieParser from 'cookie-parser';
+import { stravaRouter } from './routers/strava_router';
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/', mainRouter);
 app.use('/user/', userRouter);
+app.use('/strava/', stravaRouter);
 
 // All other GET requests not handled before will return our React app
 app.get("*", (req, res) => {

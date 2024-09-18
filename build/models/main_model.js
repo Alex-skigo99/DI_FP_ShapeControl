@@ -1,13 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mainModel = exports._hello = void 0;
+exports.mainModel = void 0;
 const db_1 = require("../config/db");
-const _hello = (id) => {
-    return (0, db_1.db)('playing_with_neon')
-        .select('id', 'name', 'value')
-        .where({ id: id });
-};
-exports._hello = _hello;
 exports.mainModel = {
     _getPrograms: async (userid) => {
         const data = await (0, db_1.db)('programs as p')

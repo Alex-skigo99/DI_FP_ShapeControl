@@ -60,29 +60,45 @@ exports.userModel = {
     },
     createStravaConnect: async (user_id, scope, data) => {
         const { access_token, refresh_token, expires_at } = data;
-        // try {
-        //   await db(TABLES.users)
-        //   .update(userdata)
-        //   .where({id: userdata.id});
-        //   // return user;
-        // } catch (error) {
-        //   throw error;
-        // }
+        const trx = await db_1.db.transaction();
+        try {
+            const [stravaData] = await trx(db_1.TABLES.strava)
+                .insert({ access_token, refresh_token, expires_at, scope }, ['access_token', 'refresh_token', 'expires_at', 'scope'])
+                .returning('id');
+            await trx(db_1.TABLES.users)
+                .update({ strava_id: stravaData.id })
+                .where({ id: user_id }); //update user with strava_id
+            await trx.commit();
+            return stravaData;
+        }
+        catch (error) {
+            await trx.rollback();
+            console.log(error);
+            throw error;
+        }
     },
-    // getAllUsers: async () => {
-    //   try {
-    //     const users = await db(TABLES.users);
-    //     return users;
-    //   } catch (error) {
-    //     throw error;
-    //   }
-    // },
-    // getUserById: async (id: number) => {
-    //   try {
-    //     const [user] = await db(TABLES.users).where({ id });
-    //     return user;
-    //   } catch (error) {
-    //     throw error;
-    //   }
-    // },
+    updateStravaData: async (userid, access_token, expires_at, refresh_token) => {
+        try {
+            const [stravaData] = await (0, db_1.db)(db_1.TABLES.strava)
+                .update({ access_token, expires_at, refresh_token })
+                .where('id', (0, db_1.db)(db_1.TABLES.users).select('strava_id').where({ id: userid }))
+                .returning('id');
+            console.log('updateStravaData - stravaData: ', stravaData); //--------------
+            return stravaData;
+        }
+        catch (error) {
+            throw error;
+        }
+    },
+    getStravaData: async (userid) => {
+        try {
+            const [stravaData] = await (0, db_1.db)(db_1.TABLES.strava)
+                .where('id', (0, db_1.db)(db_1.TABLES.users).select('strava_id').where({ id: userid }));
+            console.log('getStravaData - stravaData: ', stravaData); //--------------
+            return stravaData;
+        }
+        catch (error) {
+            throw error;
+        }
+    }
 };

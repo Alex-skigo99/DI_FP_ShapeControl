@@ -9,6 +9,7 @@ const path_1 = __importDefault(require("path"));
 const main_router_1 = require("./routers/main_router");
 const user_router_1 = require("./routers/user_router");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const strava_router_1 = require("./routers/strava_router");
 const app = (0, express_1.default)();
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
 });
 app.use('/api/', main_router_1.mainRouter);
 app.use('/user/', user_router_1.userRouter);
+app.use('/strava/', strava_router_1.stravaRouter);
 // All other GET requests not handled before will return our React app
 app.get("*", (req, res) => {
     res.sendFile(path_1.default.resolve(__dirname, "../client/dist", "index.html"));

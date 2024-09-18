@@ -26,7 +26,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 // ---------- local import --------------
 import { RootState } from '../app/store';
 import { AppDispatch } from '../app/store';
-import { setCurrentProg, patchProg } from '../features/progs/progSlice';
+import { setCurrentProg, patchProg, getStravaActivities } from '../features/progs/progSlice';
 // import { resetStatus, fetchProgs } from '../features/progs/progSlice';
 import { resetStatus, progSliceStatus, Program, Day } from '../features/progs/progSlice';
 // import { useCurrentUser } from '../features/users/hooks';
@@ -36,12 +36,15 @@ import { api } from '../utils/http_requests';
 import FormDialog, {FormDialogData} from './FormDialog';
 import { MyDialog } from './MyDialog';
 import { API } from '../utils/consts';
-import { dataDayStrava, handleStravaResponse } from '../utils/handleStravaResponse';
+import dayjs from 'dayjs';
 // import { lightGreen } from '@mui/material/colors';
 
+interface Props {
+    isStrava?: boolean;
+};
 
 
-export const CurrentProgram = () => {
+export const CurrentProgram = ({isStrava}: Props) => {
     const defaultTheme = createTheme();
     const navigate = useNavigate()
     const dispatch = useDispatch<AppDispatch>();
@@ -113,28 +116,18 @@ export const CurrentProgram = () => {
     };
 
     const handleStrava = async () => {
-        let startDay = rows[0].date;
-        console.log('startDay- ', startDay); //----------------
-        if (startDay) {
+        if (program.days[0].date) {
+            let startDay = dayjs(program.days[0].date).unix();
+            let endDay = dayjs(program.days[program.days.length-1].date).unix();
+            console.log('startDay- ', startDay); //----------------
+            console.log('endDay- ', endDay); //----------------
             let url = API.strava + '?userid=' + program.user_id
-                + '&after=' + rows[0].date + '&before=' + rows[rows.length-1].date;
-            let response: [] | undefined = await api.get_credentials(url);
-            if (response) {
-                let dataStrava: dataDayStrava[] = handleStravaResponse(response, startDay); // get kCal and about info from res array
-                let dataStavaLength = dataStrava.length; 
-                let new_days = rows.map((item, index) => { // add kCal and about info to days
-                    if (index < dataStavaLength) {
-                        return {
-                            ...item,
-                            strava: dataStrava[index].kCal,
-                            comment: item.comment + dataStrava[index].about
-                        }
-                    } else {
-                        return item;
-                    }
-                });
-                setRows(new_days);
-            }
+                + '&after=' + startDay
+                + '&before=' + endDay;
+            console.log('url- ', url); //----------------
+            dispatch(getStravaActivities(url));
+        } else {
+            console.log('startDay is undefined'); //----------------
         }
     };
 
@@ -336,15 +329,17 @@ export const CurrentProgram = () => {
             >
                 Cancel
             </Button>
-            <Button
-                type="button"
-                color='warning'
-                variant='outlined'
-                onClick={handleStrava}
-                sx={{ mt: 3, mb: 2, ml: 30 }}
-            >
-                From Strava 
-            </Button>
+            {isStrava &&
+                <Button
+                    type="button"
+                    color='warning'
+                    variant='outlined'
+                    onClick={handleStrava}
+                    sx={{ mt: 3, mb: 2, ml: 30 }}
+                >
+                    From Strava 
+                </Button>
+            }
             <Button
                 type="button"
                 variant='outlined'

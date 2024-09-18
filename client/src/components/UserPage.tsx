@@ -9,7 +9,7 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel/FormLabel";
 import { RadioGroup, FormControlLabel, Radio, Button, Backdrop, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { User, stravaSignupParameters } from "../utils/consts";
+import { stravaSignupParameters, User } from "../utils/consts";
 import MySnackbar from "./MySnackbar";
 import { resetUserSliceStatus, updateUser } from "../features/users/userSlice";
 import { useDispatch } from "react-redux";
@@ -42,18 +42,28 @@ export const UserPage = () => {
     };
 
     const handleStravaConnect = () => {
-        let url: string = 'https://www.strava.com/oauth/authorize?';
-        url += `cleint_id=${stravaSignupParameters.client_id}&`;
+        let url: string = 'http://www.strava.com/oauth/authorize?';
+        url += `client_id=${stravaSignupParameters.client_id}&`;
         url += `redirect_uri=${stravaSignupParameters.redirect_uri}&`;
         url += `response_type=${stravaSignupParameters.response_type}&`;
         url += `approval_prompt=${stravaSignupParameters.approval_prompt}&`;
         url += `scope=${stravaSignupParameters.scope}&`;
         url += `state=${currentUser.id}`;
+
         // for (let key in stravaSignupParameters) {
         //     url += `${key}=${stravaSignupParameters[key]}&`;
         // }
-        fetch(url);
+
+        window.location.href = url
+        // fetch(API.stravaAuth + '?user_id=' + currentUser.id, { method: 'GET' });
+
+        // dispatch(setStrava());
     };
+
+    // https://www.strava.com/api/v3/oauth/authorize?client_id=7694
+    // &scope=activity%3Aread_all%2Cprofile%3Aread_all&response_type=code
+    // &redirect_uri=https%3A%2F%2Fwww.vite.bike%2Fapi%2Fauth%2Fcallback%2Fstrava
+    // &approval_prompt=auto&state=B-_EpviB38GtLIj_GveCbOAdOXjmB5tebNccv9W2w7w
 
     return (
           <Container component="main" maxWidth="xs">
@@ -141,7 +151,7 @@ export const UserPage = () => {
                 <Button
                   type="submit"
                   variant="contained"
-                  sx={{ mt: 3, mb: 2 }}
+                  sx={{ mt: 3, mb: 3 }}
                 >
                   Update
                 </Button>
@@ -152,15 +162,17 @@ export const UserPage = () => {
                         dispatch(setCurrentProg(undefined));
                         navigate('/progs')
                     }}
-                    sx={{ mt: 3, mb: 2, ml: 3 }}
+                    sx={{ mt: 3, mb: 3, ml: 3 }}
                 >
                     Cancel
                 </Button>
 
-                {newUserData.strava_id ?
-                  <Typography variant="body2" color='warning' align="center">
-                    Strava connected
-                  </Typography>
+                {currentUser.strava_id ?
+                  <Box>
+                    <img src="https://i0.wp.com/www.interhacktives.com/wp-content/uploads/2014/02/strava.png?w=595&ssl=1"
+                     alt="strava"
+                     height={60} />
+                  </Box>
                  :
                   <Button
                     type="button"
@@ -172,8 +184,8 @@ export const UserPage = () => {
                   >
                     Connect to 
                     <img src="https://i0.wp.com/www.interhacktives.com/wp-content/uploads/2014/02/strava.png?w=595&ssl=1"
-                     alt="strava connection"
-                     height={30} />
+                     alt="strava"
+                     height={50} />
                   </Button>
                 }
               </Box>

@@ -2,13 +2,13 @@
 // const USER_URL = import.meta.env.VITE_APP_USER_URL;
 const API_URL = '/api/';
 const USER_URL = '/user/';
+const STRAVA_URL = '/strava/';
 
 export const API = {
     hello: API_URL + 'hello',
     ai: API_URL + 'gpt',
     programs: API_URL + 'programs',
-    strava: API_URL + 'strava',
-
+    
     login: USER_URL + 'login',  // post
     logout: USER_URL + 'logout',  // get
     register: USER_URL,  // post
@@ -16,7 +16,10 @@ export const API = {
     // allUsers: USER_URL + 'all',
     // userById: USER_URL,
     auth: USER_URL + 'auth',
-    stravaConnect: USER_URL + 'stravaconnect', // get
+    stravaAuth: USER_URL + 'stravaAuth', // get
+    
+    strava: STRAVA_URL, // get data from strava
+    stravaConnect: STRAVA_URL + 'connect', // set connection to strava
 };
 export const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 export type LevelType = 'stable' | 'progress' | 'jump';

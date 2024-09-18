@@ -102,26 +102,6 @@ export const userController = {
       res.status(200).json({ message: 'Token and refreshToken cookies have been deleted' });
   },
 
-  stravaConnect: async (req: Request, res: Response) => {
-    const { code, state, scope } = req.query;
-    console.log('stravaConnect - code:', code, 'state:', state, 'scope', scope); //-------------------
-    let url = 'https://www.strava.com/oauth/token';
-    url += '?client_id=' + process.env.CLIENT_ID;
-    url += '&client_secret=' + process.env.CLIENT_SECRET;
-    url += '&code=' + code;
-    url += '&grant_type=authorization_code';
-    console.log('stravaConnect - url:', url); //-------------------
-    try {
-      const response = await fetch(url, { method: 'POST' });
-      const data = await response.json();
-      console.log('stravaConnect - data:', data); //-------------------
-      await userModel.createStravaConnect(Number(state), scope as string, data);
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: "internal server error" });
-    }
-  },
-
   // getAllUsers: async (req: CustomRequest, res: Response) => {
   //   console.log('getAllUser: ', req.userid, req.username);
   //   try {

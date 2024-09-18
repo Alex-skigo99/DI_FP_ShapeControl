@@ -5,11 +5,10 @@ import { db } from './db.js';
 db.schema.withSchema('public')
 .createTable('strava', table => {
   table.increments('id').primary();
-  table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE');
-  table.string('strava_token', 500);
+  table.string('access_token', 500);
   table.boolean('scope');
-  table.timestamp('expires_at');
-  table.string('strava_refresh', 500);
+  table.integer('expires_at');
+  table.string('refresh_token', 500);
 })
 .then(() => console.log('Table strava created.'))
 .catch(err => console.error(err));

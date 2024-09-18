@@ -54,11 +54,22 @@ const userSlice = createSlice({
     reducers:{
         logout: (state) => {
             state.currentUser = undefined;
+            localStorage.removeItem('user');
             axios.get(API.logout);
         },
         resetUserSliceStatus: (state) => {
             state.loading = false;
             state.error = null;
+        },
+        setStrava: (state) => {
+            if (state.currentUser) {
+                state.currentUser.strava_id = 1000000;
+                localStorage.setItem('user', JSON.stringify({...state.currentUser, strava_id: 1000000}));
+            }
+        },
+        setCurrentUser: (state, action) => {
+                console.log('setCurrentUser-payload:', action.payload); //---------------
+                state.currentUser = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -71,6 +82,7 @@ const userSlice = createSlice({
             state.loading = false;
             // state.error = null;
             state.currentUser = action.payload.user;
+            localStorage.setItem('user', JSON.stringify(action.payload.user));
         })
         .addCase(signinPost.rejected, (state, action) => {
             state.loading = false;
@@ -84,6 +96,7 @@ const userSlice = createSlice({
             state.loading = false;
             state.error = null;
             state.currentUser = action.payload;
+            localStorage.setItem('user', JSON.stringify(action.payload));
         })
         .addCase(updateUser.rejected, (state, action) => {
             state.loading = false;
@@ -96,5 +109,5 @@ const userSlice = createSlice({
 export const getCurrentUser = (state: RootState) => state.userReducer.currentUser;
 export const getUserLoading = (state: RootState) => state.userReducer.loading;
 export const getUserError = (state: RootState) => state.userReducer.error;
-export const {logout, resetUserSliceStatus} = userSlice.actions;
+export const {logout, resetUserSliceStatus, setStrava, setCurrentUser} = userSlice.actions;
 export default userSlice.reducer;

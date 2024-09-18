@@ -2,6 +2,8 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { RootState } from '../../app/store';
 import { API } from '../../utils/consts';
+// import { api } from '../../utils/http_requests';
+import { dataDayStrava, handleStravaResponse } from '../../utils/handleStravaResponse';
 
 export type progSliceStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
 
@@ -87,6 +89,21 @@ export const patchProg = createAsyncThunk(
         }
     }
 );  
+export const getStravaActivities = createAsyncThunk(
+    'progs/getStravaActivities',
+    async (url: string, thunkAPI) => {
+        try {
+            // const response: [] | undefined = await api.get_credentials(url)
+            const response = await axios.get(
+                url,
+                { withCredentials: true }
+            );
+            return response.data
+        } catch (err) {
+            return thunkAPI.rejectWithValue("getStravaActivities failed");
+        }
+    }
+);  
 
 const progSlice = createSlice({
     name: 'progs',
@@ -141,6 +158,40 @@ const progSlice = createSlice({
 
         })
         .addCase(patchProg.rejected, (state) => {
+            state.status = 'failed';
+        })
+        .addCase(getStravaActivities.pending, (state) => {
+            state.status = 'loading';
+        })
+        .addCase(getStravaActivities.fulfilled, (state, action) => {
+            state.status = 'succeeded';
+            console.log('strava action-payload: ', action.payload); //-------------------
+            if (action.payload) {
+                if (state.currentProgram && state.currentProgram.days[0].date) {
+                     // get kCal and about info from res array
+                    let dataStrava: dataDayStrava[] = handleStravaResponse(action.payload, state.currentProgram.days[0].date);
+                    let dataStravaLength = dataStrava.length; 
+                    let new_days: Day[] = state.currentProgram?.days.map((item, index) => { // add kCal and about info to days
+                        if (index < dataStravaLength) {
+                            return {
+                                ...item,
+                                strava: dataStrava[index].kCal,
+                                comment: item.comment + dataStrava[index].about
+                            }
+                        } else {
+                            return item;
+                        }
+                    });
+                    state.currentProgram.days = new_days;
+                } else {
+                    console.log('currentProgram or date is undefined'); //----------------
+                }
+            } else {
+                console.log('response from server is undefined'); //----------------
+            }
+
+        })
+        .addCase(getStravaActivities.rejected, (state) => {
             state.status = 'failed';
         })
     },

@@ -70,7 +70,7 @@ export default function MyPrograms() {
   
     if (currentProgram) {
         return (
-        <CurrentProgram />
+        <CurrentProgram isStrava={currentUser?.strava_id !== null} />
         )
     };
 

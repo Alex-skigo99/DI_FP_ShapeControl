@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { _hello } from "../models/main_model";
 import { mainModel } from "../models/main_model";
 import OpenAI from 'openai';
 import dotenv from 'dotenv';
@@ -7,19 +6,6 @@ dotenv.config();
   
 const openai = new OpenAI();
   
-
-export const hello = (req: Request, res: Response) => {
-    const { id } = req.params;
-    console.log(id);
-    _hello(Number(id))
-        .then(result => {
-            res.json(result)
-        })
-        .catch((err) => {
-            res.status(500).json({message: err.message});
-        })
-};
-
 export const mainController = {
     getPrograms: (req: Request, res: Response) => {
         const { userid } = req.query;
@@ -74,5 +60,6 @@ export const mainController = {
         });
         let result = completion.choices[0].message;
         res.status(200).json(result);
-    }
+    },
+
 };

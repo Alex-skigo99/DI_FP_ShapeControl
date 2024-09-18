@@ -12,6 +12,7 @@ import SignUp from "./components/SignUp";
 import LogOut from "./components/LogOut";
 import MyPrograms from "./components/MyPrograms";
 import { UserPage } from "./components/UserPage";
+import StravaAuth from "./components/StravaAuth";
 // import Navbar from "./components/NavbarOld";
 // import Auth from "./auth/Auth";
 
@@ -34,6 +35,7 @@ function App() {
           <Route path='/create' element={<ProgramCreateForm />} />
           <Route path='/progs' element={<MyPrograms />} />
           <Route path='/user' element={<UserPage />} />
+          <Route path='/stravaauth' element={<StravaAuth />} />
         </Routes>
       </ThemeProvider>
     </Provider>
