@@ -9,12 +9,22 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel/FormLabel";
 import { RadioGroup, FormControlLabel, Radio, Button, Backdrop, CircularProgress } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { stravaSignupParameters, User } from "../utils/consts";
+import { User } from "../utils/consts";
 import MySnackbar from "./MySnackbar";
 import { resetUserSliceStatus, updateUser } from "../features/users/userSlice";
 import { useDispatch } from "react-redux";
 import { setCurrentProg } from "../features/progs/progSlice";
 import { AppDispatch } from "../app/store";
+
+const stravaSignupParameters = {
+  client_id: 120399,
+  // redirect_uri: import.meta.env.VITE_APP_STRAVA_REDIRECT_URI as string,
+  redirect_uri: window.location.protocol + '//' + window.location.host + '/stravaauth',
+  response_type: 'code',
+  approval_prompt: 'force',
+  scope: 'activity:read_all',
+  // state: user_id
+};
 
 export const UserPage = () => {
     const currentUser = useCurrentUser(); // username, age, height, gender
@@ -26,6 +36,7 @@ export const UserPage = () => {
     if (!currentUser) {
         return <Link to="/login">Please login</Link>;
     }
+    console.log('redirect_url: ', stravaSignupParameters.redirect_uri); //-------------------
     const newUserData: User = {...currentUser};
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -49,21 +60,9 @@ export const UserPage = () => {
         url += `approval_prompt=${stravaSignupParameters.approval_prompt}&`;
         url += `scope=${stravaSignupParameters.scope}&`;
         url += `state=${currentUser.id}`;
-
-        // for (let key in stravaSignupParameters) {
-        //     url += `${key}=${stravaSignupParameters[key]}&`;
-        // }
-
         window.location.href = url
-        // fetch(API.stravaAuth + '?user_id=' + currentUser.id, { method: 'GET' });
-
-        // dispatch(setStrava());
     };
 
-    // https://www.strava.com/api/v3/oauth/authorize?client_id=7694
-    // &scope=activity%3Aread_all%2Cprofile%3Aread_all&response_type=code
-    // &redirect_uri=https%3A%2F%2Fwww.vite.bike%2Fapi%2Fauth%2Fcallback%2Fstrava
-    // &approval_prompt=auto&state=B-_EpviB38GtLIj_GveCbOAdOXjmB5tebNccv9W2w7w
 
     return (
           <Container component="main" maxWidth="xs">

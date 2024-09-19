@@ -39,12 +39,3 @@ export interface User {
     height: number,
     strava_id?: number 
 };
-
-export const stravaSignupParameters = {
-    client_id: import.meta.env.VITE_APP_STRAVA_CLIENT_ID as string,
-    redirect_uri: import.meta.env.VITE_APP_STRAVA_REDIRECT_URI as string,
-    response_type: 'code',
-    approval_prompt: 'force',
-    scope: 'activity:read_all',
-    // state: user_id
-};
