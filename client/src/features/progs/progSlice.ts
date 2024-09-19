@@ -5,7 +5,7 @@ import { API } from '../../utils/consts';
 import { api } from '../../utils/http_requests';
 import { dataDayStrava, handleStravaResponse } from '../../utils/handleStravaResponse';
 
-export type progSliceStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
+export type progSliceStatus = 'idle' | 'loading' | 'succeeded' | 'loaded' | 'failed';
 
 export interface Day {
     id?: number, 
@@ -95,14 +95,21 @@ export const getStravaActivities = createAsyncThunk(
         try {
             console.log('getStravaActivities - url: ', url); //-------------------
             const response: [] | undefined = await api.get_credentials(url)
-            // const response = await axios.get(
-            //     url,
-            //     { withCredentials: true }
-            // );
             console.log('getStravaActivities - response: ', response); //-------------------
             return response
         } catch (err) {
             return thunkAPI.rejectWithValue("getStravaActivities failed");
+        }
+    }
+);  
+export const getMenuFromGPT = createAsyncThunk(
+    'progs/getMenuFromGPT',
+    async (url: string, thunkAPI) => {
+        try {
+            const response: any = await api.get_credentials(url)
+            return response
+        } catch (err) {
+            return thunkAPI.rejectWithValue("getMenuFromGPT failed");
         }
     }
 );  
@@ -162,11 +169,23 @@ const progSlice = createSlice({
         .addCase(patchProg.rejected, (state) => {
             state.status = 'failed';
         })
+        .addCase(getMenuFromGPT.pending, (state) => {
+            state.status = 'loading';
+        })
+        .addCase(getMenuFromGPT.fulfilled, (state, action) => {
+            state.status = 'loaded';
+            console.log('gpt action-payload: ', action.payload); //-------------------
+            if (state.currentProgram) {state.currentProgram.menu = action.payload.content}
+            else {console.log('getMenuFromGPT-currentProgram is undefined');}
+        })
+        .addCase(getMenuFromGPT.rejected, (state) => {
+            state.status = 'failed';
+        })
         .addCase(getStravaActivities.pending, (state) => {
             state.status = 'loading';
         })
         .addCase(getStravaActivities.fulfilled, (state, action) => {
-            state.status = 'succeeded';
+            state.status = 'loaded';
             console.log('strava action-payload: ', action.payload); //-------------------
             if (action.payload) {
                 if (state.currentProgram && state.currentProgram.days[0].date) {

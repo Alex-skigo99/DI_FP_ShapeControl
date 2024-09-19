@@ -30,15 +30,16 @@ import { red } from '@mui/material/colors';
 // ---------- local import --------------
 import { RootState } from '../app/store';
 import { AppDispatch } from '../app/store';
-import { setCurrentProg, patchProg, getStravaActivities } from '../features/progs/progSlice';
+import { setCurrentProg, patchProg, getStravaActivities, getMenuFromGPT } from '../features/progs/progSlice';
 // import { resetStatus, fetchProgs } from '../features/progs/progSlice';
 import { resetStatus, progSliceStatus, Program, Day } from '../features/progs/progSlice';
 // import { useCurrentUser } from '../features/users/hooks';
 import { useCurrentProgram } from '../features/progs/hooks';
 import Menu from './Menu';
-import { api } from '../utils/http_requests';
+// import { api } from '../utils/http_requests';
 import FormDialog, {FormDialogData} from './FormDialog';
 import { MyDialog } from './MyDialog';
+import  MySnackbar from './MySnackbar';
 import { API } from '../utils/consts';
 import dayjs from 'dayjs';
 // import { lightGreen } from '@mui/material/colors';
@@ -79,7 +80,7 @@ export const CurrentProgram = ({isStrava}: Props) => {
             // setComment(program.progcomment);
             // setWeight(program.out_weight);
             // setName(program.progname);
-            // setMenu(program.menu);
+            setMenu(program.menu);
             setRows(program.days.map((day,row) => {
                 return {
                     ...day,
@@ -117,15 +118,12 @@ export const CurrentProgram = ({isStrava}: Props) => {
 
     // Close FormDialog
     const handleCloseFormDialog = async (data?: FormDialogData) => {
-
         setOpenFormDialog(false);
         if (data) {
             let url = API.ai + '?prompt=' + `give me a menu for breakfast, lunch and dinner using  total ${data.kcalAmount} kcal using (but not only) next foods: ${data.foodsPrefer}?`
-            let response: any = await api.get_credentials(url);
-            if (response) {
-                setMenu(response.content);
-                setNeedSave(true);
-            }
+            // let response: any = await api.get_credentials(url);
+            dispatch(getMenuFromGPT(url));
+            setNeedSave(true);
         }
     };
     const handleDialogSuccessUpdate = (isCancel: boolean) => {
@@ -399,7 +397,13 @@ export const CurrentProgram = ({isStrava}: Props) => {
             open={status === 'loading'}
             >
             <CircularProgress color="inherit" />
-        </Backdrop>  
+        </Backdrop>
+        <MySnackbar
+            isOpen={status === 'loaded'}
+            period={5000}
+            message='Data loaded successfully'
+            severity='success'
+            closeAction={() => dispatch(resetStatus())} />
     </ThemeProvider>
     );
 };
