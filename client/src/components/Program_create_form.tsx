@@ -88,7 +88,7 @@ export default function ProgramCreateForm() {
         // delete day.id because we dont need to post it to database
         delete day.id;
         // add date to day object
-        return {...day, date: dayjs(data.get('date') as string).add(idx+1, 'day').format('YYYY-MM-DD')}
+        return {...day, date: dayjs(data.get('date') as string).add(idx, 'day').format('YYYY-MM-DD')}
       })
     };
     // progData.days?.forEach(day => {

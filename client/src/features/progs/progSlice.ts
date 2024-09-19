@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { RootState } from '../../app/store';
 import { API } from '../../utils/consts';
-// import { api } from '../../utils/http_requests';
+import { api } from '../../utils/http_requests';
 import { dataDayStrava, handleStravaResponse } from '../../utils/handleStravaResponse';
 
 export type progSliceStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -93,12 +93,14 @@ export const getStravaActivities = createAsyncThunk(
     'progs/getStravaActivities',
     async (url: string, thunkAPI) => {
         try {
-            // const response: [] | undefined = await api.get_credentials(url)
-            const response = await axios.get(
-                url,
-                { withCredentials: true }
-            );
-            return response.data
+            console.log('getStravaActivities - url: ', url); //-------------------
+            const response: [] | undefined = await api.get_credentials(url)
+            // const response = await axios.get(
+            //     url,
+            //     { withCredentials: true }
+            // );
+            console.log('getStravaActivities - response: ', response); //-------------------
+            return response
         } catch (err) {
             return thunkAPI.rejectWithValue("getStravaActivities failed");
         }
@@ -170,6 +172,7 @@ const progSlice = createSlice({
                 if (state.currentProgram && state.currentProgram.days[0].date) {
                      // get kCal and about info from res array
                     let dataStrava: dataDayStrava[] = handleStravaResponse(action.payload, state.currentProgram.days[0].date);
+                    console.log('fullfiled-dataStrava: ', dataStrava); //----------------
                     let dataStravaLength = dataStrava.length; 
                     let new_days: Day[] = state.currentProgram?.days.map((item, index) => { // add kCal and about info to days
                         if (index < dataStravaLength) {
@@ -182,6 +185,7 @@ const progSlice = createSlice({
                             return item;
                         }
                     });
+                    console.log('fullfiled-new_days: ', new_days); //----------------
                     state.currentProgram.days = new_days;
                 } else {
                     console.log('currentProgram or date is undefined'); //----------------

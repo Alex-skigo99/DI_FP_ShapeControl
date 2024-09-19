@@ -40,7 +40,7 @@ export const stravaController = {
         console.log('strava-req.query:', req.query); //--------------
         const userid = Number(req.query.userid);
         const after = Number(req.query.after);
-        const befor = Math.min(Number(req.query.befor), Date.now() / 1000);
+        const befor = Math.min(Number(req.query.befor), Math.floor(Date.now() / 1000));
 
         // check if strava access_token is expired
         const isStravaTokenExpired = (expires_at: number) => {
@@ -97,9 +97,7 @@ export const stravaController = {
                     'Authorization': 'Bearer ' + access_token // Optional authorization header
                   }
              });
-              const activities = await response.json();
-              console.log('getStravaActivities - data:', activities); //-------------------
-              return activities
+              return await response.json()
             } catch (error) {
               console.log(error);
               return { message: "internal server error" };
@@ -118,6 +116,7 @@ export const stravaController = {
                         if (updated) {
                             // fetch activities from strava using new tokens
                             const activities = await getStravaActivities(userid, after, befor, newTokens.access_token);
+                            console.log('getStravaActivities - data:', activities); //-------------------
                             res.status(200).json(activities);
                         } else {
                             res.status(500).json({ message: "internal database error" });
@@ -132,6 +131,7 @@ export const stravaController = {
                     res.status(200).json(activities);
                 }
             } else {
+                console.log('strava scope error'); //-------------------
                 res.status(403).json({ message: "Strava scope error" });
             }
         } catch (error) {

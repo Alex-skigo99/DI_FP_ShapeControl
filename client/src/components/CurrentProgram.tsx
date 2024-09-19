@@ -2,7 +2,9 @@ import React from 'react';
 import { useNavigate } from "react-router-dom";
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 // import axios from "axios";
+
 // -------------- import @mui ---------------
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -22,6 +24,8 @@ import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { Typography } from '@mui/material';
+import { red } from '@mui/material/colors';
 
 // ---------- local import --------------
 import { RootState } from '../app/store';
@@ -50,6 +54,7 @@ export const CurrentProgram = ({isStrava}: Props) => {
     const dispatch = useDispatch<AppDispatch>();
     const program = useCurrentProgram() as Program;
     const status: progSliceStatus = useSelector((state: RootState) => state.progReducer.status);
+    const [needSave, setNeedSave] = React.useState(false);
     // const currentUser = useCurrentUser();
     // forms state
     const [close, setClose] = React.useState(program?.is_close);
@@ -67,6 +72,22 @@ export const CurrentProgram = ({isStrava}: Props) => {
     );
     // dialog state
     const [openFormDialog, setOpenFormDialog] = React.useState(false);
+
+    useEffect(() => {
+        if (program) {
+            // setClose(program.is_close);
+            // setComment(program.progcomment);
+            // setWeight(program.out_weight);
+            // setName(program.progname);
+            // setMenu(program.menu);
+            setRows(program.days.map((day,row) => {
+                return {
+                    ...day,
+                    row: row+1,
+                }
+            }));
+        }
+    }, [program]);
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -87,6 +108,7 @@ export const CurrentProgram = ({isStrava}: Props) => {
         };
         console.log('progData- ', progData); //---------------
         dispatch(patchProg(progData));
+        setNeedSave(false);
     };
 
     const handleAI = async () => {
@@ -102,22 +124,21 @@ export const CurrentProgram = ({isStrava}: Props) => {
             let response: any = await api.get_credentials(url);
             if (response) {
                 setMenu(response.content);
+                setNeedSave(true);
             }
         }
     };
     const handleDialogSuccessUpdate = (isCancel: boolean) => {
         if (!isCancel) {
             dispatch(setCurrentProg(undefined));
-            dispatch(resetStatus());
-            navigate('/progs')
-        } else {
-            dispatch(resetStatus());
-        }
+        };
+        dispatch(resetStatus());
+        navigate('/progs')
     };
 
     const handleStrava = async () => {
         if (program.days[0].date) {
-            let startDay = dayjs(program.days[0].date).unix();
+            let startDay = dayjs(program.days[0].date).subtract(1, 'day').unix(); // get activities from the day before the program start
             let endDay = dayjs(program.days[program.days.length-1].date).unix();
             console.log('startDay- ', startDay); //----------------
             console.log('endDay- ', endDay); //----------------
@@ -126,6 +147,7 @@ export const CurrentProgram = ({isStrava}: Props) => {
                 + '&before=' + endDay;
             console.log('url- ', url); //----------------
             dispatch(getStravaActivities(url));
+            setNeedSave(true);
         } else {
             console.log('startDay is undefined'); //----------------
         }
@@ -142,6 +164,13 @@ export const CurrentProgram = ({isStrava}: Props) => {
 
     const columns: GridColDef[] = [
     { field: 'day', headerName: 'Day', width: 100, editable: false },
+    {
+        field: 'date',
+        headerName: 'Date',
+        width: 100,
+        align: 'left',
+        editable: false,
+    },
     {
         field: 'plan',
         headerName: 'Plan',
@@ -182,7 +211,7 @@ export const CurrentProgram = ({isStrava}: Props) => {
     {
         field: 'comment',
         headerName: 'Comment',
-        width: 250,
+        width: 350,
         editable: !close,
     },
     ];
@@ -303,7 +332,8 @@ export const CurrentProgram = ({isStrava}: Props) => {
                 <DataGrid 
                     rows={rows} 
                     columns={columns}
-                    rowHeight={42}
+                    rowHeight={40}
+                    density='compact'
                     hideFooter
                     processRowUpdate={(updatedRow) =>
                     rowUpdate(updatedRow)
@@ -311,6 +341,10 @@ export const CurrentProgram = ({isStrava}: Props) => {
                 />
                 </Grid>
             </Grid>
+            {needSave && 
+                <Typography variant='body2' sx={{ mt: 1, mb: 0, ml: 3, color: red[400] }}>
+                    You have unsaved changes
+                </Typography>}
             <Button
                 type="submit"
                 variant="contained"
@@ -329,32 +363,32 @@ export const CurrentProgram = ({isStrava}: Props) => {
             >
                 Cancel
             </Button>
+            <Button
+                type="button"
+                variant='outlined'
+                onClick={handleAI}
+                sx={{ mt: 3, mb: 2, ml: 30 }}
+            >
+                Menu suggestion
+            </Button>
             {isStrava &&
                 <Button
                     type="button"
                     color='warning'
                     variant='outlined'
                     onClick={handleStrava}
-                    sx={{ mt: 3, mb: 2, ml: 30 }}
+                    sx={{ mt: 3, mb: 2, ml: 3 }}
                 >
                     From Strava 
                 </Button>
             }
-            <Button
-                type="button"
-                variant='outlined'
-                onClick={handleAI}
-                sx={{ mt: 3, mb: 2, ml: 3 }}
-            >
-                Menu suggestion
-            </Button>
             </Box>
         </Box>
         {menu && <Menu text={menu}/>}
         </Container>
         <FormDialog open={openFormDialog} kcalAmount={program.days[0].plan} onClose={handleCloseFormDialog} />
         <MyDialog
-            open={status == 'succeeded'}
+            open={status === 'succeeded'}
             cancelBtn={true}
             title = 'Success!'
             text = 'Current program has been updated'
@@ -362,7 +396,7 @@ export const CurrentProgram = ({isStrava}: Props) => {
             handleClose={handleDialogSuccessUpdate} />
         <Backdrop
             sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
-            open={status == 'loading'}
+            open={status === 'loading'}
             >
             <CircularProgress color="inherit" />
         </Backdrop>  
